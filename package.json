@@ -1,0 +1,32 @@
+{
+    "name": "test-vir",
+    "version": "0.0.1",
+    "description": "The heroic testing package",
+    "main": "dist/index.js",
+    "scripts": {
+        "prepublishOnly": "npm run test",
+        "compile": "tsc",
+        "test": "npm run compile && node dist/index.test.js",
+        "format": "prettier --ignore-path .gitignore --write './{,!(js-output)/**/}*.+(ts|json|html|css)'"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/electrovir/test-vir.git"
+    },
+    "keywords": [
+        "test",
+        "testing",
+        "vir"
+    ],
+    "author": "electrovir (github.com/electrovir)",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/electrovir/test-vir/issues"
+    },
+    "homepage": "https://github.com/electrovir/test-vir#readme",
+    "devDependencies": {
+        "@types/node": "^14.14.6",
+        "prettier": "^2.1.2",
+        "typescript": "^4.0.5"
+    }
+}
