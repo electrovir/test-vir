@@ -1,3 +1,3 @@
 # TestVir
 
-The heroic testing framework
+The heroic testing package.

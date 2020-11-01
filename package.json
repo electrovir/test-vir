@@ -1,7 +1,7 @@
 {
     "name": "test-vir",
-    "version": "0.0.1",
-    "description": "The heroic testing package",
+    "version": "0.0.2",
+    "description": "The heroic testing package.",
     "main": "dist/index.js",
     "scripts": {
         "prepublishOnly": "npm run test",

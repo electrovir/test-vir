@@ -1,1 +1,1 @@
-console.log('The heroic testing framework awakens!');
+console.log('The heroic testing package awakens!');
