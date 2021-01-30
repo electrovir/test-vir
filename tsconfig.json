@@ -11,5 +11,6 @@
         "outDir": "dist",
         "rootDir": "src",
         "strict": true
-    }
+    },
+    "exclude": ["src/**/*.type.test.ts", "dist"]
 }

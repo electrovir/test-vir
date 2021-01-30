@@ -1,33 +1,32 @@
-# TestVir
+// EXAMPLES
 
-The heroic testing package.
+// when installed via npm this line should be
+// import {runTests} from 'test-vir';
+import {runTests} from './run-tests';
 
-# Examples
-
-```typescript
 // runTests call must happen first, runTest is then accessed in the "tests" callback.
-Examples: RunTests({
+runTests({
     description: 'example tests',
-    tests: runTest => {
+    tests: (runTest) => {
         // just a function as the input with no return value.
-        RunTest(() => {
+        runTest(() => {
             checkThatSomethingWorks();
         });
         // object input with no return value
-        RunTest({
+        runTest({
             test: () => {
                 checkThatSomethingWorks();
             },
         });
         // type of expect must match the return type of the test function
-        RunTest({
+        runTest({
             test: () => {
                 return checkThatSomethingWorks();
             },
             expect: 'worked',
         });
         // optional object input parameters
-        RunTest({
+        runTest({
             test: () => {
                 return checkThatSomethingWorks();
             },
@@ -35,4 +34,27 @@ Examples: RunTests({
         });
     },
 });
-```
+
+runTests({
+    description: 'excluded tests',
+    tests: (runTest) => {
+        runTest(() => {
+            checkThatSomethingWorks();
+        });
+    },
+    exclude: true,
+});
+
+runTests({
+    description: 'only run these tests, exclude all other tests',
+    tests: (runTest) => {
+        runTest(() => {
+            checkThatSomethingWorks();
+        });
+    },
+    forceOnly: true,
+});
+
+function checkThatSomethingWorks() {
+    return 'worked';
+}
