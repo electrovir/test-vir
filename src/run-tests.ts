@@ -1,4 +1,4 @@
-import * as equal from 'fast-deep-equal/es6';
+import equal = require('fast-deep-equal');
 import {TestCommonProperties, TestResult} from '.';
 import {RequiredBy} from './augment';
 import {InternalVirTestError, throwInternalVirTestError} from './internal-vir-test-error';
@@ -47,32 +47,21 @@ runTest<ResultTypeGeneric, ErrorClassGeneric>(
 ): Promise<Readonly<TestResult<ResultTypeGeneric, ErrorClassGeneric>>> {
     let testThrewError = false;
     let testCallbackError: unknown;
-    let result: ResultTypeGeneric | undefined;
+    let testCallbackResult: ResultTypeGeneric | undefined;
 
     try {
         const output = await (isTestObject(input) ? input.test() : input());
         if (output === undefined) {
-            result = undefined;
+            // undefined is a perfectly fine subtype of ResultTypeGeneric but a possible output type
+            // is also void which causes type issues so this is basically casting void to undefined
+            // (which is what void is at runtime anyway)
+            testCallbackResult = undefined;
         } else {
-            result = output;
+            testCallbackResult = output;
         }
     } catch (error) {
         testThrewError = true;
         testCallbackError = error;
-    }
-
-    let equality: boolean | undefined;
-
-    if (isTestObject(input) && input.hasOwnProperty('expect')) {
-        // check that the output matches the expectation
-        try {
-            equality = equal(input.expect, result);
-            if (equality == undefined) {
-                throw new InternalVirTestError(`equality check did not product a boolean`);
-            }
-        } catch (error) {
-            throwInternalVirTestError(error);
-        }
     }
 
     const baseReturnValue = {
@@ -91,11 +80,17 @@ runTest<ResultTypeGeneric, ErrorClassGeneric>(
                 returnValue = {
                     ...baseReturnValue,
                     error: testCallbackError,
-                    resultState: ResultState.ExpectMatchPass,
+                    resultState: ResultState.ErrorMatchPass,
                     success: true,
                 };
             } else {
-                // this is an expected error and should FAIL
+                // this is an unexpected error and should FAIL
+                returnValue = {
+                    ...baseReturnValue,
+                    error: testCallbackError,
+                    resultState: ResultState.ErrorMatchFail,
+                    success: false,
+                };
             }
         } else {
             // this is an unexpected error and should FAIL
@@ -107,6 +102,46 @@ runTest<ResultTypeGeneric, ErrorClassGeneric>(
             };
         }
     } else {
+        if (isTestObject(input) && 'expect' in input) {
+            let areEqual: boolean | undefined;
+
+            // wrapping this in a try catch because equal is from an external package
+            try {
+                // check that the output matches the expectation
+                areEqual = equal(input.expect, testCallbackResult);
+                if (typeof areEqual !== 'boolean') {
+                    throw new InternalVirTestError(`equality check did not product a boolean`);
+                }
+            } catch (error) {
+                throwInternalVirTestError(error);
+            }
+
+            if (areEqual) {
+                returnValue = {
+                    ...baseReturnValue,
+                    // testCallbackResult here is ResultTypeGeneric|undefined and undefined is a perfectly
+                    // reasonable subtype of ResultTypeGeneric
+                    output: testCallbackResult as ResultTypeGeneric,
+                    resultState: ResultState.ExpectMatchPass,
+                    success: true,
+                };
+            } else {
+                returnValue = {
+                    ...baseReturnValue,
+                    // testCallbackResult here is ResultTypeGeneric|undefined and undefined is a perfectly
+                    // reasonable subtype of ResultTypeGeneric
+                    output: testCallbackResult as ResultTypeGeneric,
+                    resultState: ResultState.ExpectMatchFail,
+                    success: false,
+                };
+            }
+        } else {
+            returnValue = {
+                ...baseReturnValue,
+                resultState: ResultState.NoCheckPass,
+                success: true,
+            };
+        }
     }
 
     return returnValue;

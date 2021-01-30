@@ -1,6 +1,5 @@
-import {ArrayElement} from './augment';
 import {runTests} from './run-tests';
-import {MatchFailStates, PassStates, ResultState, TestResult} from './test';
+import {ResultState, TestResult} from './test';
 import {TestError} from './test-error';
 
 function inferTestResult<ResultTypeGeneric, ErrorClassGeneric>(
@@ -9,13 +8,6 @@ function inferTestResult<ResultTypeGeneric, ErrorClassGeneric>(
     return input;
 }
 
-// make sure that all states are assigned to either passing or failing states
-type bucketedStates<T> = {[key in ArrayElement<typeof PassStates>]: T} &
-    {[key in ArrayElement<typeof MatchFailStates>]: T} & {
-        /* the error state is separate from fail and pass states */ [ResultState.Error]: T;
-    };
-type allStates<T> = {[key in ResultState]: T};
-const bucketedStatesInstanceCheck: bucketedStates<string> = {} as bucketedStates<string>;
 //
 // =================================================================================
 //
@@ -24,8 +16,16 @@ const bucketedStatesInstanceCheck: bucketedStates<string> = {} as bucketedStates
 // =================================================================================
 //
 
-// if one of the enum values is not bucketed then the following line will be an error
-const allStatesInstanceCheck: allStates<string> = bucketedStatesInstanceCheck;
+type dummyResult = {
+    output: any;
+    error: any;
+    success: any;
+    input: any;
+    resultState: ResultState;
+};
+declare const thingie: dummyResult;
+// if this fails then it is likely that a ResultState was left out of the definition for TestResult
+inferTestResult(thingie);
 
 runTests({
     description: '',

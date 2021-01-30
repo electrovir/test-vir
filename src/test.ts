@@ -24,9 +24,11 @@ export type ErrorExpectation<ErrorClassGeneric> =
 /** Input object for running an individual test via runTest's runTest callback. */
 export type TestInputObject<ResultTypeGeneric, ErrorClassGeneric> = TestCommonProperties & {
     test: TestFunction<ResultTypeGeneric>;
-} & (ResultTypeGeneric extends void
+} & (ResultTypeGeneric extends void | undefined
         ? // if the test function returns void then there should not be any expect
-          {}
+          {
+              expect?: undefined;
+          }
         : // if the test function returns something an expect must be present
           {
               expect: ResultTypeGeneric;
@@ -70,8 +72,6 @@ export const PassStates = [
     ResultState.NoCheckPass,
     ResultState.ErrorMatchPass,
 ] as const;
-// ResultState.Error is intentionally left out of FailStates
-export const MatchFailStates = [ResultState.ErrorMatchFail, ResultState.ExpectMatchFail] as const;
 
 export function isPassState(input: any): input is ArrayElement<typeof PassStates> {
     return PassStates.includes(input);
@@ -82,30 +82,51 @@ export type AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric> =
     | TestFunction<void>;
 
 export type TestResult<ResultTypeGeneric, ErrorClassGeneric> =
-    // shared state
+    //
+    // SHARED STATE
+    //
     {
         input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric>;
     } & (
-        | // success state
+        | //
+        // SUCCESS STATES
+        //
         {
-              output: ResultTypeGeneric;
-              // allow error here because a potential pass case is when an error is thrown that matches expectations
-              error: unknown;
-              resultState: ArrayElement<typeof PassStates>;
-              success: true;
-          }
-        // error state
-        | {
-              output: undefined;
-              error: any;
-              resultState: ResultState.Error;
-              success: false;
-          }
-        // failure state
-        | {
+              // output expect success state
               output: ResultTypeGeneric;
               error: undefined;
-              resultState: ArrayElement<typeof MatchFailStates>;
+              resultState: ResultState.ExpectMatchPass;
+              success: true;
+          }
+        | {
+              // no check and no error success state
+              output: undefined;
+              error: undefined;
+              resultState: ResultState.NoCheckPass;
+              success: true;
+          }
+        | {
+              // error expect success state
+              output: undefined;
+              error: unknown;
+              resultState: ResultState.ErrorMatchPass;
+              success: true;
+          }
+        //
+        // FAILURE STATES
+        //
+        | {
+              // result expect failure state
+              output: ResultTypeGeneric;
+              error: undefined;
+              resultState: ResultState.ExpectMatchFail;
+              success: false;
+          }
+        | {
+              // error state
+              output: undefined;
+              error: unknown;
+              resultState: ResultState.Error | ResultState.ErrorMatchFail;
               success: false;
           }
     );
