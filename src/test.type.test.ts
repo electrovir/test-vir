@@ -2,6 +2,9 @@ import {runTests} from './run-tests';
 import {ResultState, TestResult} from './test';
 import {TestError} from './test-error';
 
+// this file should not be included in the typescript compilation but can be checked in an editor
+// (VS Code) to see if both sections correctly fail and pass, respectively.
+
 function inferTestResult<ResultTypeGeneric, ErrorClassGeneric>(
     input: TestResult<ResultTypeGeneric, ErrorClassGeneric>,
 ) {

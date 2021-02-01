@@ -1,8 +1,15 @@
 import equal = require('fast-deep-equal');
-import {TestCommonProperties, TestResult} from '.';
 import {RequiredBy} from './augment';
+import {getCallerFile} from './get-caller-file';
 import {InternalVirTestError, throwInternalVirTestError} from './internal-vir-test-error';
-import {AcceptedTestInputs, ErrorExpectation, ResultState, TestInputObject} from './test';
+import {
+    AcceptedTestInputs,
+    ErrorExpectation,
+    ResultState,
+    TestCommonProperties,
+    TestInputObject,
+    TestResult,
+} from './test';
 import {TestError} from './test-error';
 
 export function isTestObject<ResultTypeGeneric, ErrorClassGeneric>(
@@ -71,6 +78,7 @@ runTest<ResultTypeGeneric, ErrorClassGeneric>(
     };
     let returnValue: TestResult<ResultTypeGeneric, ErrorClassGeneric>;
 
+    // all the different potential outcomes
     if (testThrewError) {
         // at this point either the error matches the expected error or the test failed
         if (isTestObject(input) && 'expectError' in input) {
@@ -155,14 +163,79 @@ export type RunTestsInput = RequiredBy<
     TestCommonProperties,
     'description' /* require that runTests includes a description */
 > & {
-    tests: (testFunction: typeof runTest) => void;
+    tests: (testFunction: typeof runTest) => Promise<void> | void;
 };
+
+type PromisedGlobalResults = Required<Omit<RunTestsInput, 'tests'>> & {
+    allResults: Promise<Readonly<TestResult<unknown, unknown>>>[];
+    fileOrigin: string | undefined;
+};
+export type ResolvedGlobalResults = Required<Omit<RunTestsInput, 'tests'>> & {
+    allResults: Readonly<TestResult<unknown, unknown>>[];
+    fileOrigin: string | undefined;
+};
+
+const globalResults: PromisedGlobalResults[] = [];
+
+export async function getGlobalResults(): Promise<Readonly<ResolvedGlobalResults[]>> {
+    return Promise.all(
+        globalResults.map(
+            async (
+                resultsEntry: PromisedGlobalResults,
+            ): Promise<Readonly<ResolvedGlobalResults>> => {
+                const allResults = await Promise.all(resultsEntry.allResults);
+
+                const resolvedResults: ResolvedGlobalResults = {
+                    ...resultsEntry,
+                    allResults,
+                };
+
+                return resolvedResults;
+            },
+        ),
+    );
+}
 
 /**
  * Run tests. Tests are run through the callback provided to the "tests" property on the input object.
  *
  * @param input An object containing the test callback and description. See RunTestsInput for details.
  */
-export function runTests(input: RunTestsInput) {
-    input.tests(runTest);
+export async function runTests(
+    input: RunTestsInput,
+): Promise<Readonly<TestResult<unknown, unknown>>[]> {
+    const resultPromises: Promise<Readonly<TestResult<unknown, unknown>>>[] = [];
+
+    // this is not async because we need to synchronously insert the result promises
+    const wrappedRunTest = <ResultTypeGeneric, ErrorClassGeneric>(
+        input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric>,
+    ): Promise<Readonly<TestResult<ResultTypeGeneric, ErrorClassGeneric>>> => {
+        const result = runTest(input);
+        resultPromises.push(result as any);
+        return result;
+    };
+    globalResults.push({
+        allResults: resultPromises,
+        description: input.description,
+        exclude: input.exclude || false,
+        forceOnly: input.forceOnly || false,
+        fileOrigin: getCallerFile(),
+    });
+
+    try {
+        try {
+            await input.tests(wrappedRunTest);
+        } catch (error) {
+            // this should not happen because runTest should be catching all test errors
+            console.error(error);
+            throw new InternalVirTestError(`Test error was not caught by runTest: "${error}"`);
+        }
+        const results = await Promise.all(resultPromises);
+        // return the results in case the consumer wishes to use this method in ways other than the CLI
+        return results;
+    } catch (error) {
+        // this should not happen because runTest should be catching all test errors
+        console.error(error);
+        throw new InternalVirTestError(`Error processing test results: "${error}"`);
+    }
 }
