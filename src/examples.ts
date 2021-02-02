@@ -2,7 +2,7 @@
 
 // when installed via npm this line should be
 // import {runTests} from 'test-vir';
-import {runTests} from './run-tests';
+import {runTests} from './run-all-tests';
 
 // runTests call must happen first, runTest is then accessed in the "tests" callback.
 runTests({

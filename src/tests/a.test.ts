@@ -1,4 +1,4 @@
-import {runTests} from '../run-tests';
+import {runTests} from '../run-all-tests';
 
 runTests({
     description: 'test the tester',
