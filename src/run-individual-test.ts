@@ -3,10 +3,10 @@ import {InternalVirTestError, throwInternalVirTestError} from './internal-vir-te
 import {
     AcceptedTestInputs,
     ErrorExpectation,
+    IndividualTestResult,
     ResultState,
     TestInputObject,
-    TestResult,
-} from './test';
+} from './run-individual-test-types';
 import {TestError} from './test-error';
 
 function isTestObject<ResultTypeGeneric, ErrorClassGeneric>(
@@ -48,7 +48,7 @@ function errorsMatch<ErrorClassGeneric>(
 export async function /* This function should not be exported. It is accessed through runTests's callback. */
 runIndividualTest<ResultTypeGeneric, ErrorClassGeneric>(
     input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric>,
-): Promise<Readonly<TestResult<ResultTypeGeneric, ErrorClassGeneric>>> {
+): Promise<Readonly<IndividualTestResult<ResultTypeGeneric, ErrorClassGeneric>>> {
     let testThrewError = false;
     let testCallbackError: unknown;
     let testCallbackResult: ResultTypeGeneric | undefined;
@@ -73,7 +73,7 @@ runIndividualTest<ResultTypeGeneric, ErrorClassGeneric>(
         output: undefined,
         error: undefined,
     };
-    let returnValue: TestResult<ResultTypeGeneric, ErrorClassGeneric>;
+    let returnValue: IndividualTestResult<ResultTypeGeneric, ErrorClassGeneric>;
 
     // all the different potential outcomes
     if (testThrewError) {

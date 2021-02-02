@@ -1,5 +1,6 @@
 import {relative} from 'path';
 
+// I tried multiple npm packages for doing this and they all failed whereas this succeeds
 export function getCallerFile(): string | undefined {
     var originalFunc = Error.prepareStackTrace;
 

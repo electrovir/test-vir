@@ -1,15 +1,13 @@
-import {runTests} from './run-tests';
-import {ResultState, TestResult} from './test';
+import {runTests} from './run-all-tests';
+import {ResultState, TestResult} from './run-individual-test-types';
 import {TestError} from './test-error';
 
 // this file should not be included in the typescript compilation but can be checked in an editor
 // (VS Code) to see if both sections correctly fail and pass, respectively.
 
-function inferTestResult<ResultTypeGeneric, ErrorClassGeneric>(
+declare function inferTestResult<ResultTypeGeneric, ErrorClassGeneric>(
     input: TestResult<ResultTypeGeneric, ErrorClassGeneric>,
-) {
-    return input;
-}
+): void;
 
 //
 // =================================================================================
@@ -26,9 +24,9 @@ type dummyResult = {
     input: any;
     resultState: ResultState;
 };
-declare const thingie: dummyResult;
+declare const dummyResult: dummyResult;
 // if this fails then it is likely that a ResultState was left out of the definition for TestResult
-inferTestResult(thingie);
+inferTestResult(dummyResult);
 
 runTests({
     description: '',

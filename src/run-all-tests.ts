@@ -2,14 +2,9 @@ import {getCallerFile} from './get-caller-file';
 import {globalResults} from './global-results';
 import {InternalVirTestError} from './internal-vir-test-error';
 import {resolveRunTestsOutput} from './resolve-run-tests-output';
-import {
-    PromisedIndividualResults,
-    PromisedRunTestsOutput,
-    ResolvedRunTestsOutput,
-    RunTestsInput,
-} from './run-all-tests-types';
+import {PromisedRunTestsOutput, ResolvedRunTestsOutput, RunTestsInput} from './run-all-tests-types';
 import {runIndividualTest} from './run-individual-test';
-import {AcceptedTestInputs, TestResult} from './test';
+import {AcceptedTestInputs, IndividualTestResult} from './run-individual-test-types';
 
 /**
  * Run tests. Tests are run through the callback provided to the "tests" property on the input object.
@@ -17,12 +12,12 @@ import {AcceptedTestInputs, TestResult} from './test';
  * @param input An object containing the test callback and description. See RunTestsInput for details.
  */
 export async function runTests(input: RunTestsInput): Promise<ResolvedRunTestsOutput> {
-    const resultPromises: PromisedIndividualResults = [];
+    const resultPromises: Promise<IndividualTestResult<unknown, unknown>>[] = [];
 
     // this is not async because we need to synchronously insert the result promises
     const wrappedRunTest = <ResultTypeGeneric, ErrorClassGeneric>(
         input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric>,
-    ): Promise<Readonly<TestResult<ResultTypeGeneric, ErrorClassGeneric>>> => {
+    ): Promise<Readonly<IndividualTestResult<ResultTypeGeneric, ErrorClassGeneric>>> => {
         const result = runIndividualTest(input);
         resultPromises.push(result as any);
         return result;

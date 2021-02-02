@@ -1,6 +1,6 @@
-import {ArrayElement, RequiredBy} from './augment';
 import {runIndividualTest} from './run-individual-test';
-import {TestCommonProperties, TestResult} from './test';
+import {IndividualTestResult, TestCommonProperties} from './run-individual-test-types';
+import {ArrayElement, Overwrite, RequiredBy} from './types';
 
 /**
  * Input parameter for the runTests method. Description and test are required. Other optional
@@ -13,19 +13,14 @@ export type RunTestsInput = RequiredBy<
     tests: (testFunction: typeof runIndividualTest) => Promise<void> | void;
 };
 
-export type PromisedRunTestsOutput = Readonly<
-    Required<Omit<RunTestsInput, 'tests'>> & {
-        allResults: PromisedIndividualResults;
-        fileOrigin: string | undefined;
-    }
+export type PromisedRunTestsOutput = Overwrite<
+    ResolvedRunTestsOutput,
+    Readonly<{allResults: Promise<ArrayElement<ResolvedRunTestsOutput['allResults']>>[]}>
 >;
 
 export type ResolvedRunTestsOutput = Readonly<
     Required<Omit<RunTestsInput, 'tests'>> & {
-        allResults: ResolvedIndividualResults;
+        allResults: IndividualTestResult<unknown, unknown>[];
         fileOrigin: string | undefined;
     }
 >;
-
-export type ResolvedIndividualResults = Readonly<TestResult<unknown, unknown>>[];
-export type PromisedIndividualResults = Promise<ArrayElement<ResolvedIndividualResults>>[];

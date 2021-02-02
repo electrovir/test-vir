@@ -1,4 +1,4 @@
-import {ArrayElement} from './augment';
+import {ArrayElement} from './types';
 
 export type TestFunction<ResultTypeGeneric> = () => ResultTypeGeneric | Promise<ResultTypeGeneric>;
 
@@ -81,52 +81,55 @@ export type AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric> =
     | TestInputObject<ResultTypeGeneric, ErrorClassGeneric>
     | TestFunction<void>;
 
-export type TestResult<ResultTypeGeneric, ErrorClassGeneric> =
+export type IndividualTestResult<ResultTypeGeneric, ErrorClassGeneric> = Readonly<
     //
     // SHARED STATE
     //
-    {
-        input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric>;
-    } & (
-        | //
-        // SUCCESS STATES
-        //
-        {
-              // output expect success state
-              output: ResultTypeGeneric;
-              error: undefined;
-              resultState: ResultState.ExpectMatchPass;
-              success: true;
-          }
-        | {
-              // no check and no error success state
-              output: undefined;
-              error: undefined;
-              resultState: ResultState.NoCheckPass;
-              success: true;
-          }
-        | {
-              // error expect success state
-              output: undefined;
-              error: unknown;
-              resultState: ResultState.ErrorMatchPass;
-              success: true;
-          }
-        //
-        // FAILURE STATES
-        //
-        | {
-              // result expect failure state
-              output: ResultTypeGeneric;
-              error: undefined;
-              resultState: ResultState.ExpectMatchFail;
-              success: false;
-          }
-        | {
-              // error state
-              output: undefined;
-              error: unknown;
-              resultState: ResultState.Error | ResultState.ErrorMatchFail;
-              success: false;
-          }
-    );
+    | ({
+          input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric>;
+      } & (
+          | //
+          // SUCCESS STATES
+          //
+          {
+                // output expect success state
+                output: ResultTypeGeneric;
+                error: undefined;
+                resultState: ResultState.ExpectMatchPass;
+                success: true;
+            }
+          | {
+                // no check and no error success state
+                output: undefined;
+                error: undefined;
+                resultState: ResultState.NoCheckPass;
+                success: true;
+            }
+          | {
+                // error expect success state
+                output: undefined;
+                error: unknown;
+                resultState: ResultState.ErrorMatchPass;
+                success: true;
+            }
+          //
+          // FAILURE STATES
+          //
+          | {
+                // result expect failure state
+                output: ResultTypeGeneric;
+                error: undefined;
+                resultState: ResultState.ExpectMatchFail;
+                success: false;
+            }
+      ))
+    | {
+          // error state
+          // error state is allowed undefined input because errors can occur before the test is even started
+          input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric> | undefined;
+          output: undefined;
+          error: unknown;
+          resultState: ResultState.Error | ResultState.ErrorMatchFail;
+          success: false;
+      }
+>;
