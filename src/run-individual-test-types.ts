@@ -1,4 +1,4 @@
-import {ArrayElement} from './types';
+import {ResultState} from './result-state';
 
 export type TestFunction<ResultTypeGeneric> = () => ResultTypeGeneric | Promise<ResultTypeGeneric>;
 
@@ -28,58 +28,26 @@ export type TestInputObject<ResultTypeGeneric, ErrorClassGeneric> = TestCommonPr
         ? // if the test function returns void then there should not be any expect
           {
               expect?: undefined;
+              expectError?: ErrorExpectation<ErrorClassGeneric>;
           }
         : // if the test function returns something an expect must be present
-          {
-              expect: ResultTypeGeneric;
-          }) &
-    (
-        | {
-              expectError: ErrorExpectation<ErrorClassGeneric>;
-          }
-        | {}
-    );
-
-export enum ResultState {
-    /**
-     * no expectations were given and no error was thrown
-     */
-    NoCheckPass = 'no-check-pass',
-    /**
-     * the test callback result matched the expected output
-     */
-    ExpectMatchPass = 'expect-match-pass',
-    /**
-     * the test callback result did not match the expected output (and no error was thrown)
-     */
-    ExpectMatchFail = 'expect-match-fail',
-    /**
-     * the test callback threw an error and did not match the error expectation
-     */
-    ErrorMatchFail = 'error-match-fail',
-    /**
-     * the test callback threw an error and the error matched the error expectation
-     */
-    ErrorMatchPass = 'error-match-pass',
-    /**
-     * the test callback threw an error and no error expectation was present
-     */
-    Error = 'error',
-}
-
-export const PassStates = [
-    ResultState.ExpectMatchPass,
-    ResultState.NoCheckPass,
-    ResultState.ErrorMatchPass,
-] as const;
-
-export function isPassState(input: any): input is ArrayElement<typeof PassStates> {
-    return PassStates.includes(input);
-}
+          | {
+                    // cannot have both expect and expectError
+                    expect: ResultTypeGeneric;
+                    expectError?: undefined;
+                }
+              | {
+                    expect?: undefined;
+                    expectError: ErrorExpectation<ErrorClassGeneric>;
+                });
 
 export type AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric> =
     | TestInputObject<ResultTypeGeneric, ErrorClassGeneric>
     | TestFunction<void>;
+
+export type OutputWithError<ResultTypeGeneric> = ResultTypeGeneric extends undefined | void
+    ? ResultTypeGeneric
+    : undefined;
 
 export type IndividualTestResult<ResultTypeGeneric, ErrorClassGeneric> = Readonly<
     //
@@ -107,7 +75,7 @@ export type IndividualTestResult<ResultTypeGeneric, ErrorClassGeneric> = Readonl
             }
           | {
                 // error expect success state
-                output: undefined;
+                output: OutputWithError<ResultTypeGeneric>;
                 error: unknown;
                 resultState: ResultState.ErrorMatchPass;
                 success: true;
@@ -122,14 +90,21 @@ export type IndividualTestResult<ResultTypeGeneric, ErrorClassGeneric> = Readonl
                 resultState: ResultState.ExpectMatchFail;
                 success: false;
             }
+          | {
+                // error expect failure state
+                output: ResultTypeGeneric | undefined;
+                error: unknown;
+                resultState: ResultState.ErrorMatchFail;
+                success: false;
+            }
       ))
     | {
           // error state
-          // error state is allowed undefined input because errors can occur before the test is even started
+          // error state is allowed an undefined input because errors can occur before the tests have even started
           input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric> | undefined;
-          output: undefined;
+          output: OutputWithError<ResultTypeGeneric>;
           error: unknown;
-          resultState: ResultState.Error | ResultState.ErrorMatchFail;
+          resultState: ResultState.Error;
           success: false;
       }
 >;

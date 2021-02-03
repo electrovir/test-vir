@@ -1,12 +1,13 @@
+import {ResultState} from './result-state';
 import {runTests} from './run-all-tests';
-import {ResultState, TestResult} from './run-individual-test-types';
+import {IndividualTestResult} from './run-individual-test-types';
 import {TestError} from './test-error';
 
 // this file should not be included in the typescript compilation but can be checked in an editor
 // (VS Code) to see if both sections correctly fail and pass, respectively.
 
 declare function inferTestResult<ResultTypeGeneric, ErrorClassGeneric>(
-    input: TestResult<ResultTypeGeneric, ErrorClassGeneric>,
+    input: IndividualTestResult<ResultTypeGeneric, ErrorClassGeneric>,
 ): void;
 
 //
@@ -75,6 +76,15 @@ runTests({
                 errorMessage: 'yolo',
             },
         });
+        runTest({
+            // cannot ignore expect if expectError is present
+            expectError: {
+                errorClass: TestError,
+            },
+            test: () => {
+                return Math.random();
+            },
+        });
     },
 });
 
@@ -110,7 +120,7 @@ inferTestResult({
 //
 
 runTests({
-    description: '',
+    description: 'description',
     tests: (runTest) => {
         // tests that return a value must include an expectation
         runTest({test: () => 5});
@@ -135,6 +145,17 @@ runTests({
             },
             // expect error can't be empty
             expectError: {},
+        });
+
+        runTest({
+            // cannot have both expect and expect error
+            expect: 1,
+            expectError: {
+                errorClass: TestError,
+            },
+            test: () => {
+                return Math.random();
+            },
         });
     },
 });

@@ -23,7 +23,5 @@
     },
     "editor.formatOnSave": true,
     "typescript.tsdk": "node_modules/typescript/lib",
-    "cSpell.words": [
-        "accum"
-    ]
+    "cSpell.words": ["accum"]
 }

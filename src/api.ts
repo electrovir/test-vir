@@ -4,8 +4,8 @@ import {resolve} from 'path';
 import {formatResults} from './format-results';
 import {getGlobalResults} from './global-results';
 import {InternalVirTestError} from './internal-vir-test-error';
+import {ResultState} from './result-state';
 import {ResolvedRunTestsOutput} from './run-all-tests-types';
-import {ResultState} from './run-individual-test-types';
 import {TestError} from './test-error';
 
 export async function runAllTestFiles(
@@ -96,8 +96,6 @@ async function figureOutWhatFilesToUse(): Promise<string[]> {
 
 async function main(): Promise<void> {
     const files = await figureOutWhatFilesToUse();
-
-    console.log(JSON.stringify(files, null, 4));
 
     if (!files.length) {
         throw new Error(`No files to test. Usage: test-vir <file-path-1>.js [, ...otherFilePaths]`);

@@ -5,6 +5,7 @@ import {resolveRunTestsOutput} from './resolve-run-tests-output';
 import {PromisedRunTestsOutput, ResolvedRunTestsOutput, RunTestsInput} from './run-all-tests-types';
 import {runIndividualTest} from './run-individual-test';
 import {AcceptedTestInputs, IndividualTestResult} from './run-individual-test-types';
+import {TestError} from './test-error';
 
 /**
  * Run tests. Tests are run through the callback provided to the "tests" property on the input object.
@@ -12,6 +13,11 @@ import {AcceptedTestInputs, IndividualTestResult} from './run-individual-test-ty
  * @param input An object containing the test callback and description. See RunTestsInput for details.
  */
 export async function runTests(input: RunTestsInput): Promise<ResolvedRunTestsOutput> {
+    // run time description checks
+    if (!input.description || typeof input.description !== 'string') {
+        throw new TestError(`Invalid test description: "${input.description}"`);
+    }
+
     const resultPromises: Promise<IndividualTestResult<unknown, unknown>>[] = [];
 
     // this is not async because we need to synchronously insert the result promises

@@ -1,15 +1,16 @@
 import * as equal from 'fast-deep-equal';
 import {InternalVirTestError, throwInternalVirTestError} from './internal-vir-test-error';
+import {ResultState} from './result-state';
 import {
     AcceptedTestInputs,
     ErrorExpectation,
     IndividualTestResult,
-    ResultState,
+    OutputWithError,
     TestInputObject,
 } from './run-individual-test-types';
 import {TestError} from './test-error';
 
-function isTestObject<ResultTypeGeneric, ErrorClassGeneric>(
+export function isTestObject<ResultTypeGeneric, ErrorClassGeneric>(
     input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric>,
 ): input is TestInputObject<ResultTypeGeneric, ErrorClassGeneric> {
     return typeof input !== 'function' && input.hasOwnProperty('test');
@@ -70,15 +71,19 @@ runIndividualTest<ResultTypeGeneric, ErrorClassGeneric>(
 
     const baseReturnValue = {
         input,
-        output: undefined,
+        output: undefined as OutputWithError<ResultTypeGeneric>,
         error: undefined,
     };
     let returnValue: IndividualTestResult<ResultTypeGeneric, ErrorClassGeneric>;
 
     // all the different potential outcomes
-    if (testThrewError) {
+    if (
+        testThrewError ||
+        /* if the test expects an error we want to compare the error even if there was none */
+        'expectError' in input
+    ) {
         // at this point either the error matches the expected error or the test failed
-        if (isTestObject(input) && 'expectError' in input) {
+        if (isTestObject(input) && 'expectError' in input && input.expectError) {
             // check error matching
             if (errorsMatch(testCallbackError, input.expectError)) {
                 // this is an expected error and should PASS
@@ -143,6 +148,7 @@ runIndividualTest<ResultTypeGeneric, ErrorClassGeneric>(
         } else {
             returnValue = {
                 ...baseReturnValue,
+                output: undefined,
                 resultState: ResultState.NoCheckPass,
                 success: true,
             };
