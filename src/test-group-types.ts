@@ -6,20 +6,20 @@ import {ArrayElement, Overwrite, RequiredBy} from './types';
  * Input parameter for the runTests method. Description and test are required. Other optional
  * properties are defined in the TestCommonProperties type.
  */
-export type RunTestsInput = RequiredBy<
+export type TestGroupInput = RequiredBy<
     TestCommonProperties,
     'description' /* require that runTests includes a description */
 > & {
     tests: (testFunction: typeof runIndividualTest) => Promise<void> | void;
 };
 
-export type PromisedRunTestsOutput = Overwrite<
-    ResolvedRunTestsOutput,
-    Readonly<{allResults: Promise<ArrayElement<ResolvedRunTestsOutput['allResults']>>[]}>
+export type PromisedTestGroupOutput = Overwrite<
+    ResolvedTestGroupOutput,
+    Readonly<{allResults: Promise<ArrayElement<ResolvedTestGroupOutput['allResults']>>[]}>
 >;
 
-export type ResolvedRunTestsOutput = Readonly<
-    Required<Omit<RunTestsInput, 'tests'>> & {
+export type ResolvedTestGroupOutput = Readonly<
+    Required<Omit<TestGroupInput, 'tests'>> & {
         allResults: IndividualTestResult<unknown, unknown>[];
         fileOrigin: string | undefined;
     }

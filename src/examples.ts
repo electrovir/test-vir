@@ -2,10 +2,10 @@
 
 // when installed via npm this line should be
 // import {runTests} from 'test-vir';
-import {runTests} from './run-all-tests';
+import {createTestGroup} from './test-group';
 
 // runTests call must happen first, runTest is then accessed in the "tests" callback.
-runTests({
+createTestGroup({
     description: 'example tests',
     tests: (runTest) => {
         // just a function as the input with no return value.
@@ -35,7 +35,7 @@ runTests({
     },
 });
 
-runTests({
+createTestGroup({
     description: 'excluded tests',
     tests: (runTest) => {
         runTest(() => {
@@ -45,7 +45,7 @@ runTests({
     exclude: true,
 });
 
-runTests({
+createTestGroup({
     description: 'only run these tests, exclude all other tests',
     tests: (runTest) => {
         runTest(() => {

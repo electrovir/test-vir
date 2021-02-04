@@ -23,8 +23,14 @@ export type ErrorExpectation<ErrorClassGeneric> =
 
 /** Input object for running an individual test via runTest's runTest callback. */
 export type TestInputObject<ResultTypeGeneric, ErrorClassGeneric> = TestCommonProperties & {
-    test: TestFunction<ResultTypeGeneric>;
-} & (ResultTypeGeneric extends void | undefined
+    test:
+        | TestFunction<ResultTypeGeneric>
+        /**
+         * this never type is required to allow functions which return never
+         * without this, the never cascades up the whole type and whole object becomes never for some reason
+         */
+        | TestFunction<never>;
+} & (ResultTypeGeneric extends emptyFunctionReturn
         ? // if the test function returns void then there should not be any expect
           {
               expect?: undefined;
@@ -41,9 +47,11 @@ export type TestInputObject<ResultTypeGeneric, ErrorClassGeneric> = TestCommonPr
                     expectError: ErrorExpectation<ErrorClassGeneric>;
                 });
 
+export type emptyFunctionReturn = void | never | undefined;
+
 export type AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric> =
     | TestInputObject<ResultTypeGeneric, ErrorClassGeneric>
-    | TestFunction<void>;
+    | TestFunction<emptyFunctionReturn>;
 
 export type OutputWithError<ResultTypeGeneric> = ResultTypeGeneric extends undefined | void
     ? ResultTypeGeneric

@@ -1,12 +1,41 @@
+import * as styles from 'ansi-styles';
 import {ResultState, resultStateExplanations} from './result-state';
-import {ResolvedRunTestsOutput} from './run-all-tests-types';
 import {isTestObject} from './run-individual-test';
 import {AcceptedTestInputs, IndividualTestResult} from './run-individual-test-types';
+import {ResolvedTestGroupOutput} from './test-group-types';
 
-const separator = ':';
+const colors = {
+    info: styles.blue.open,
+    fail: styles.red.open,
+    success: styles.green.open,
+    reset: styles.reset.close,
+    bold: styles.bold.open,
+};
 
-export function formatResults(runTestsResults: Readonly<ResolvedRunTestsOutput[]>): string {
-    // console.log(runTestsResults[0]?.allResults);
+const tab = '    ';
+
+const separator = `${colors.reset}:`;
+
+export function countFailures(runTestsResults: Readonly<ResolvedTestGroupOutput[]>): number {
+    return runTestsResults.reduce((count, singleRunTestsOutput) => {
+        return (
+            count +
+            singleRunTestsOutput.allResults.reduce((innerCount, individualTestResult) => {
+                return innerCount + Number(individualTestResult.success);
+            }, 0)
+        );
+    }, 0);
+}
+
+export function getFinalFailureMessage(runTestsResults: Readonly<ResolvedTestGroupOutput[]>) {
+    const failures = countFailures(runTestsResults);
+
+    return `${getPassedColor(false)}${failures} Test${failures === 1 ? '' : 's'} Failed${
+        colors.reset
+    }`;
+}
+
+export function formatResults(runTestsResults: Readonly<ResolvedTestGroupOutput[]>): string {
     const formattedOutput = runTestsResults
         .map((fileResults) => {
             const testFilePassed = fileResults.allResults.every(
@@ -19,9 +48,13 @@ export function formatResults(runTestsResults: Readonly<ResolvedRunTestsOutput[]
                 )
                 .join('');
 
-            const results = getPassedString(testFilePassed) + (testFilePassed ? '' : resultsOutput);
+            const results = `${getPassedString(testFilePassed)}${
+                testFilePassed ? ` (${fileResults.allResults.length} tests)` : resultsOutput
+            }`;
 
-            const output = `${fileResults.fileOrigin}${separator} ${fileResults.description}${separator} ${results}`;
+            const output = `${getPassedColor(testFilePassed)}${fileResults.fileOrigin}${
+                colors.reset
+            }${separator} ${fileResults.description}${separator} ${results}`;
             return output;
         })
         .join('\n');
@@ -29,7 +62,10 @@ export function formatResults(runTestsResults: Readonly<ResolvedRunTestsOutput[]
 }
 
 function getPassedString(passed: boolean): string {
-    return passed ? 'Passed' : 'Failed';
+    return `${getPassedColor(passed)}${passed ? `Passed` : `Failed`}${colors.reset}`;
+}
+function getPassedColor(passed: boolean): string {
+    return `${colors.bold}${passed ? colors.success : colors.fail}`;
 }
 
 function formatIndividualTestResults(
@@ -46,15 +82,16 @@ function formatIndividualTestResults(
         resultStateExplanations[individualResult.resultState]
     }`;
 
-    const failureReason = figureOutFailureReason(individualResult, 3).split('\n').join('\n\t');
+    const failureReason = figureOutFailureReason(individualResult, 2).split('\n').join(`\n${tab}`);
     const failureExplanation = individualResult.success
         ? ''
-        : `\n\t\t${failureReason}\n\t\tinput${separator}\t${formatInput(
-              individualResult.input,
-              3,
-          )}`;
+        : `\n${tab}${tab}${failureReason}\n${tab}${tab}${colors.info}input${
+              colors.reset
+          }${separator}${formatInput(individualResult.input, 3)}`;
 
-    const testResultOutput = `\n\t${testDescriptor}${separator} ${stateString}${failureExplanation}`;
+    const testResultOutput = `\n${tab}${getPassedColor(
+        individualResult.success,
+    )}${testDescriptor}${separator} ${stateString}${failureExplanation}`;
 
     return testResultOutput;
 }
@@ -70,9 +107,9 @@ function figureOutFailureReason(
             return 'Not a failure.';
         case ResultState.ExpectMatchFail:
             if (result.input && isTestObject(result.input)) {
-                const expectObjectString = formatJson(result.input.expect, indent);
-                const outputObjectString = formatJson(result.output, indent);
-                return `expected${separator} ${expectObjectString}\n\tbut got${separator}  ${outputObjectString}`;
+                const expectObjectString = formatValue(result.input.expect, indent);
+                const outputObjectString = formatValue(result.output, indent);
+                return `${colors.info}expected${colors.reset}${separator}${expectObjectString}\n${tab}${colors.info}but got${colors.reset}${separator}${outputObjectString}`;
             } else {
                 return 'No expectation was assigned.';
             }
@@ -82,7 +119,7 @@ function figureOutFailureReason(
                     ('expectError' in result.input &&
                         (result.input.expectError && 'errorClass' in result.input.expectError
                             ? replaceErrorClassString(
-                                  formatJson(
+                                  formatValue(
                                       {
                                           ...result.input.expectError,
                                           errorClass: result.input.expectError.errorClass.name,
@@ -91,7 +128,7 @@ function figureOutFailureReason(
                                   ),
                                   result.input.expectError.errorClass.name,
                               )
-                            : formatJson(result.input.expectError, indent))) ||
+                            : formatValue(result.input.expectError, indent))) ||
                     undefined;
 
                 const errorClassName: string | undefined = (() => {
@@ -108,7 +145,7 @@ function figureOutFailureReason(
                         return undefined;
                     }
                 })();
-                const outputObjectString = formatJson(
+                const outputObjectString = formatValue(
                     (result.error && {
                         errorClass: errorClassName,
                         errorMessage: errorMessage,
@@ -117,7 +154,7 @@ function figureOutFailureReason(
                     indent,
                 );
 
-                return `error expected${separator}\t${expectObjectString}\n\tbut got${separator}\t${outputObjectString}`;
+                return `${colors.info}error expected${colors.reset}${separator}${expectObjectString}\n${tab}${colors.info}but got${colors.reset}${separator}${outputObjectString}`;
             } else {
                 return 'No error expectation was assigned.';
             }
@@ -140,7 +177,7 @@ function formatInput(
 ): string {
     if (input && 'expectError' in input && input.expectError && 'errorClass' in input.expectError) {
         return replaceErrorClassString(
-            formatJson(
+            formatValue(
                 {
                     ...input,
                     expectError: {
@@ -155,19 +192,30 @@ function formatInput(
             input.expectError.errorClass.name,
         );
     } else {
-        return formatJson(input, indent);
+        return formatValue(input, indent);
     }
 }
 
 function formatJson(input: any, indent: number): string {
-    const indents = Array(indent)
-        .fill(0)
-        .map(() => '\t')
-        .join('');
-
-    const json = JSON.stringify(input, null, '\t');
+    const json = JSON.stringify(input, null, `${tab}`);
 
     // this String cast handles the case where input is undefined, which results in JSON.stringify
     // outputting undefined instead of the string "undefined"
-    return (typeof json === 'string' ? json : String(json)).split('\n').join(`\n${indents}`);
+    return (typeof json === 'string' ? json : String(json))
+        .split('\n')
+        .join(`\n${createIndentString(indent)}`);
+}
+
+function formatValue(input: any, indent: number): string {
+    const json = formatJson(input, indent);
+    const output = (json.includes('\n') ? `\n${createIndentString(indent)}` : ' ') + json;
+
+    return output;
+}
+
+function createIndentString(indent: number): string {
+    return Array(indent)
+        .fill(0)
+        .map(() => `${tab}`)
+        .join('');
 }

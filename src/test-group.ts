@@ -2,17 +2,17 @@ import {getCallerFile} from './get-caller-file';
 import {globalResults} from './global-results';
 import {InternalVirTestError} from './internal-vir-test-error';
 import {resolveRunTestsOutput} from './resolve-run-tests-output';
-import {PromisedRunTestsOutput, ResolvedRunTestsOutput, RunTestsInput} from './run-all-tests-types';
 import {runIndividualTest} from './run-individual-test';
 import {AcceptedTestInputs, IndividualTestResult} from './run-individual-test-types';
 import {TestError} from './test-error';
+import {PromisedTestGroupOutput, ResolvedTestGroupOutput, TestGroupInput} from './test-group-types';
 
 /**
  * Run tests. Tests are run through the callback provided to the "tests" property on the input object.
  *
  * @param input An object containing the test callback and description. See RunTestsInput for details.
  */
-export async function runTests(input: RunTestsInput): Promise<ResolvedRunTestsOutput> {
+export async function createTestGroup(input: TestGroupInput): Promise<ResolvedTestGroupOutput> {
     // run time description checks
     if (!input.description || typeof input.description !== 'string') {
         throw new TestError(`Invalid test description: "${input.description}"`);
@@ -28,7 +28,7 @@ export async function runTests(input: RunTestsInput): Promise<ResolvedRunTestsOu
         resultPromises.push(result as any);
         return result;
     };
-    const promisedResults: PromisedRunTestsOutput = {
+    const promisedResults: PromisedTestGroupOutput = {
         allResults: resultPromises,
         description: input.description,
         exclude: input.exclude || false,

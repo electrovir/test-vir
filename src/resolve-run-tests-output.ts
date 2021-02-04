@@ -1,11 +1,11 @@
-import {PromisedRunTestsOutput, ResolvedRunTestsOutput} from './run-all-tests-types';
+import {PromisedTestGroupOutput, ResolvedTestGroupOutput} from './test-group-types';
 
 export async function resolveRunTestsOutput(
-    unresolved: PromisedRunTestsOutput,
-): Promise<ResolvedRunTestsOutput> {
+    unresolved: PromisedTestGroupOutput,
+): Promise<ResolvedTestGroupOutput> {
     const allResults = await Promise.all(unresolved.allResults);
 
-    const resolvedResults: ResolvedRunTestsOutput = {
+    const resolvedResults: ResolvedTestGroupOutput = {
         ...unresolved,
         allResults,
     };

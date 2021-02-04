@@ -1,8 +1,8 @@
-import {ResultState} from '../result-state';
-import {runTests} from '../run-all-tests';
-import {runIndividualTest} from '../run-individual-test';
+import {ResultState} from './result-state';
+import {runIndividualTest} from './run-individual-test';
+import {createTestGroup} from './test-group';
 
-runTests({
+createTestGroup({
     description: 'test the tester',
     tests: (runTest) => {
         runTest({
@@ -17,11 +17,32 @@ runTests({
                     })
                 ).resultState,
         });
+        runTest({
+            expect: ResultState.ExpectMatchPass,
+            test: async () =>
+                (
+                    await runIndividualTest({
+                        expect: 'This should pass',
+                        test: () => {
+                            return 'This should pass';
+                        },
+                    })
+                ).resultState,
+        });
+        runTest({
+            expectError: {
+                errorClass: Error,
+            },
+            description: 'test with error expect',
+            test: async () => {
+                throw new Error('herp derp');
+            },
+        });
     },
 });
 
-runTests({
-    description: 'test the tester 2',
+createTestGroup({
+    description: 'second test in file',
     tests: (runTest) => {
         runTest({
             expect: ResultState.ExpectMatchFail,

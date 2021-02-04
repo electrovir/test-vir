@@ -1,16 +1,16 @@
 import {existsSync} from 'fs';
 import {promise as glob} from 'glob-promise';
 import {resolve} from 'path';
-import {formatResults} from './format-results';
+import {countFailures, formatResults, getFinalFailureMessage} from './format-results';
 import {getGlobalResults} from './global-results';
 import {InternalVirTestError} from './internal-vir-test-error';
 import {ResultState} from './result-state';
-import {ResolvedRunTestsOutput} from './run-all-tests-types';
 import {TestError} from './test-error';
+import {ResolvedTestGroupOutput} from './test-group-types';
 
 export async function runAllTestFiles(
     files: string[],
-): Promise<Readonly<ResolvedRunTestsOutput[]>> {
+): Promise<Readonly<ResolvedTestGroupOutput[]>> {
     try {
         const promises: Promise<unknown>[] = [];
 
@@ -32,7 +32,7 @@ export async function runAllTestFiles(
 
         await Promise.all(promises);
 
-        const lostFileResults: Readonly<ResolvedRunTestsOutput[]> = lostFiles.map(
+        const lostFileResults: Readonly<ResolvedTestGroupOutput[]> = lostFiles.map(
             (lostFilePath) => {
                 return {
                     allResults: [
@@ -57,14 +57,6 @@ export async function runAllTestFiles(
     } catch (error) {
         throw new InternalVirTestError(error.message);
     }
-}
-
-export function didAllTestsPass(runTestsResults: Readonly<ResolvedRunTestsOutput[]>): boolean {
-    return runTestsResults.every((singleRunTestsOutput) =>
-        singleRunTestsOutput.allResults.every(
-            (individualTestResult) => individualTestResult.success,
-        ),
-    );
 }
 
 async function figureOutWhatFilesToUse(): Promise<string[]> {
@@ -102,10 +94,10 @@ async function main(): Promise<void> {
     }
     const results = await runAllTestFiles(files);
 
-    console.log(formatResults(results));
+    console.log(formatResults(results) + '\n');
 
-    if (!didAllTestsPass(results)) {
-        throw new TestError('Test(s) Failed');
+    if (countFailures(results) > 0) {
+        throw new TestError(getFinalFailureMessage(results));
     }
 }
 
