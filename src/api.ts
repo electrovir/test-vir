@@ -37,14 +37,14 @@ export async function runAllTestFiles(
                 return {
                     allResults: [
                         {
-                            error: new TestError('File not found'),
+                            error: new TestError(`File not found: ${lostFilePath}`),
                             input: undefined,
                             output: undefined,
                             resultState: ResultState.Error,
                             success: false,
                         },
                     ],
-                    description: lostFilePath,
+                    description: 'Read file',
                     exclude: false,
                     forceOnly: false,
                     fileOrigin: lostFilePath,
@@ -72,6 +72,7 @@ async function figureOutWhatFilesToUse(): Promise<string[]> {
             } else {
                 // try glob expansion
                 const globFoundFiles: string[] = await glob(input);
+                console.log(input, globFoundFiles);
                 if (globFoundFiles.length > 0) {
                     foundFiles.push(...globFoundFiles);
                 } else {

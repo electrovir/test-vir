@@ -32,7 +32,7 @@ function errorsMatch<ErrorClassGeneric>(
         return false;
     }
 
-    throw new TestError('Empty error expectation: ${JSON.stringify(comparison)}');
+    throw new TestError(`Empty error expectation: ${JSON.stringify(comparison)}`);
 }
 
 /**
@@ -76,83 +76,92 @@ runIndividualTest<ResultTypeGeneric, ErrorClassGeneric>(
     };
     let returnValue: IndividualTestResult<ResultTypeGeneric, ErrorClassGeneric>;
 
-    // all the different potential outcomes
-    if (
-        testThrewError ||
-        /* if the test expects an error we want to compare the error even if there was none */
-        'expectError' in input
-    ) {
-        // at this point either the error matches the expected error or the test failed
-        if (isTestObject(input) && 'expectError' in input && input.expectError) {
-            // check error matching
-            if (errorsMatch(testCallbackError, input.expectError)) {
-                // this is an expected error and should PASS
-                returnValue = {
-                    ...baseReturnValue,
-                    error: testCallbackError,
-                    resultState: ResultState.ErrorMatchPass,
-                    success: true,
-                };
+    try {
+        // all the different potential outcomes
+        if (
+            testThrewError ||
+            /* if the test expects an error we want to compare the error even if there was none */
+            'expectError' in input
+        ) {
+            // at this point either the error matches the expected error or the test failed
+            if (isTestObject(input) && 'expectError' in input && input.expectError) {
+                // check error matching
+                if (errorsMatch(testCallbackError, input.expectError)) {
+                    // this is an expected error and should PASS
+                    returnValue = {
+                        ...baseReturnValue,
+                        error: testCallbackError,
+                        resultState: ResultState.ErrorMatchPass,
+                        success: true,
+                    };
+                } else {
+                    // this is an unexpected error and should FAIL
+                    returnValue = {
+                        ...baseReturnValue,
+                        error: testCallbackError,
+                        resultState: ResultState.ErrorMatchFail,
+                        success: false,
+                    };
+                }
             } else {
                 // this is an unexpected error and should FAIL
                 returnValue = {
                     ...baseReturnValue,
                     error: testCallbackError,
-                    resultState: ResultState.ErrorMatchFail,
+                    resultState: ResultState.Error,
                     success: false,
                 };
             }
         } else {
-            // this is an unexpected error and should FAIL
-            returnValue = {
-                ...baseReturnValue,
-                error: testCallbackError,
-                resultState: ResultState.Error,
-                success: false,
-            };
-        }
-    } else {
-        if (isTestObject(input) && 'expect' in input) {
-            let areEqual: boolean | undefined;
+            if (isTestObject(input) && 'expect' in input) {
+                let areEqual: boolean | undefined;
 
-            // wrapping this in a try catch because equal is from an external package
-            try {
-                // check that the output matches the expectation
-                areEqual = equal(input.expect, testCallbackResult);
-                if (typeof areEqual !== 'boolean') {
-                    throw new InternalVirTestError(`equality check did not product a boolean`);
+                // wrapping this in a try catch because equal is from an external package
+                try {
+                    // check that the output matches the expectation
+                    areEqual = equal(input.expect, testCallbackResult);
+                    if (typeof areEqual !== 'boolean') {
+                        throw new InternalVirTestError(`equality check did not product a boolean`);
+                    }
+                } catch (error) {
+                    throwInternalVirTestError(error);
                 }
-            } catch (error) {
-                throwInternalVirTestError(error);
-            }
 
-            if (areEqual) {
-                returnValue = {
-                    ...baseReturnValue,
-                    // testCallbackResult here is ResultTypeGeneric|undefined and undefined is a perfectly
-                    // reasonable subtype of ResultTypeGeneric
-                    output: testCallbackResult as ResultTypeGeneric,
-                    resultState: ResultState.ExpectMatchPass,
-                    success: true,
-                };
+                if (areEqual) {
+                    returnValue = {
+                        ...baseReturnValue,
+                        // testCallbackResult here is ResultTypeGeneric|undefined and undefined is a perfectly
+                        // reasonable subtype of ResultTypeGeneric
+                        output: testCallbackResult as ResultTypeGeneric,
+                        resultState: ResultState.ExpectMatchPass,
+                        success: true,
+                    };
+                } else {
+                    returnValue = {
+                        ...baseReturnValue,
+                        // testCallbackResult here is ResultTypeGeneric|undefined and undefined is a perfectly
+                        // reasonable subtype of ResultTypeGeneric
+                        output: testCallbackResult as ResultTypeGeneric,
+                        resultState: ResultState.ExpectMatchFail,
+                        success: false,
+                    };
+                }
             } else {
                 returnValue = {
                     ...baseReturnValue,
-                    // testCallbackResult here is ResultTypeGeneric|undefined and undefined is a perfectly
-                    // reasonable subtype of ResultTypeGeneric
-                    output: testCallbackResult as ResultTypeGeneric,
-                    resultState: ResultState.ExpectMatchFail,
-                    success: false,
+                    output: undefined,
+                    resultState: ResultState.NoCheckPass,
+                    success: true,
                 };
             }
-        } else {
-            returnValue = {
-                ...baseReturnValue,
-                output: undefined,
-                resultState: ResultState.NoCheckPass,
-                success: true,
-            };
         }
+    } catch (internalError) {
+        returnValue = {
+            ...baseReturnValue,
+            error: internalError,
+            resultState: ResultState.Error,
+            success: false,
+        };
     }
 
     return returnValue;

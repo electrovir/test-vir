@@ -21,7 +21,7 @@ export function countFailures(runTestsResults: Readonly<ResolvedTestGroupOutput[
         return (
             count +
             singleRunTestsOutput.allResults.reduce((innerCount, individualTestResult) => {
-                return innerCount + Number(individualTestResult.success);
+                return innerCount + Number(!individualTestResult.success);
             }, 0)
         );
     }, 0);
@@ -52,9 +52,9 @@ export function formatResults(runTestsResults: Readonly<ResolvedTestGroupOutput[
                 testFilePassed ? ` (${fileResults.allResults.length} tests)` : resultsOutput
             }`;
 
-            const output = `${getPassedColor(testFilePassed)}${fileResults.fileOrigin}${
-                colors.reset
-            }${separator} ${fileResults.description}${separator} ${results}`;
+            const output = `${fileResults.fileOrigin}${separator} ${getPassedColor(
+                testFilePassed,
+            )}${fileResults.description}${colors.reset}${separator} ${results}`;
             return output;
         })
         .join('\n');
@@ -83,11 +83,16 @@ function formatIndividualTestResults(
     }`;
 
     const failureReason = figureOutFailureReason(individualResult, 2).split('\n').join(`\n${tab}`);
+    const inputString = individualResult.input
+        ? `\n${tab}${tab}${colors.info}input${colors.reset}${separator}${formatInput(
+              individualResult.input,
+              3,
+          )}`
+        : '';
+
     const failureExplanation = individualResult.success
         ? ''
-        : `\n${tab}${tab}${failureReason}\n${tab}${tab}${colors.info}input${
-              colors.reset
-          }${separator}${formatInput(individualResult.input, 3)}`;
+        : `\n${tab}${tab}${failureReason}${inputString}`;
 
     const testResultOutput = `\n${tab}${getPassedColor(
         individualResult.success,
@@ -109,7 +114,7 @@ function figureOutFailureReason(
             if (result.input && isTestObject(result.input)) {
                 const expectObjectString = formatValue(result.input.expect, indent);
                 const outputObjectString = formatValue(result.output, indent);
-                return `${colors.info}expected${colors.reset}${separator}${expectObjectString}\n${tab}${colors.info}but got${colors.reset}${separator}${outputObjectString}`;
+                return `${colors.info}expected${colors.reset}${separator}${expectObjectString}\n${tab}${colors.fail}but got${colors.reset}${separator}${outputObjectString}`;
             } else {
                 return 'No expectation was assigned.';
             }
@@ -154,12 +159,15 @@ function figureOutFailureReason(
                     indent,
                 );
 
-                return `${colors.info}error expected${colors.reset}${separator}${expectObjectString}\n${tab}${colors.info}but got${colors.reset}${separator}${outputObjectString}`;
+                return `${colors.info}error expected${colors.reset}${separator}${expectObjectString}\n${tab}${colors.fail}but got${colors.reset}${separator}${outputObjectString}`;
             } else {
                 return 'No error expectation was assigned.';
             }
         case ResultState.Error:
-            return String(result.error);
+            return `${colors.fail}error${colors.reset}${separator}${formatValue(
+                String(result.error),
+                indent,
+            )}`;
     }
 }
 
@@ -207,7 +215,7 @@ function formatJson(input: any, indent: number): string {
 }
 
 function formatValue(input: any, indent: number): string {
-    const json = formatJson(input, indent);
+    const json: string = typeof input === 'string' ? input : formatJson(input, indent);
     const output = (json.includes('\n') ? `\n${createIndentString(indent)}` : ' ') + json;
 
     return output;

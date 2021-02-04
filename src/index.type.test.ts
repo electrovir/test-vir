@@ -48,7 +48,7 @@ type dummyResult = {
     input: any;
     resultState: ResultState;
 };
-declare const dummyResult: dummyResult;
+const dummyResult: dummyResult = {} as dummyResult;
 // if this fails then it is likely that a ResultState was left out of the definition for TestResult
 inferTestResult(dummyResult);
 
