@@ -1,4 +1,4 @@
-import {ArrayElement} from './types';
+import {ArrayElement} from '../type-augments';
 
 export enum ResultState {
     /**
@@ -47,7 +47,7 @@ export const resultStateExplanations: Record<ResultState, string> = {
     [ResultState.NoCheckPass]: 'No errors were thrown and the test had no expectation.',
     [ResultState.ExpectMatchPass]: 'The test output met expectations.',
     [ResultState.ExpectMatchFail]: 'The test output did not meet expectations.',
-    [ResultState.ErrorMatchPass]: 'The test threw an error as expected.',
-    [ResultState.ErrorMatchFail]: 'The test threw an error that did not meet expectations.',
+    [ResultState.ErrorMatchPass]: 'The test threw an error that met error expectations.',
+    [ResultState.ErrorMatchFail]: 'The test threw an error that did not meet error expectations.',
     [ResultState.Error]: 'The test encountered an error.',
 };

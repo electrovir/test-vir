@@ -1,7 +1,37 @@
 import {relative} from 'path';
+import {separator} from './string-output';
+
+export type Caller = {
+    filePath: string;
+    lineNumber: number;
+    columnNumber: number;
+};
+
+callerToString({} as Caller);
+
+export function callerToString(
+    input: Caller,
+    options: {line?: boolean; file?: boolean} = {
+        line: true,
+        file: true,
+    },
+) {
+    const file = 'file' in options && !options.file ? '' : `${input.filePath}${separator}`;
+    const line =
+        'line' in options && !options.line
+            ? ''
+            : `${input.lineNumber}${separator}${input.columnNumber}`;
+    return `${file}${line}`;
+}
+
+export const emptyCaller: Readonly<Caller> = {
+    filePath: 'caller file not found',
+    lineNumber: -1,
+    columnNumber: -1,
+} as const;
 
 // I tried multiple npm packages for doing this and they all failed whereas this succeeds
-export function getCallerFile(): string | undefined {
+export function getCaller(howFarBack: number): Caller {
     var originalFunc = Error.prepareStackTrace;
 
     const error = new Error();
@@ -12,11 +42,24 @@ export function getCallerFile(): string | undefined {
     const stack = (error.stack as unknown) as NodeJS.CallSite[] | undefined;
     Error.prepareStackTrace = originalFunc;
 
-    const fullPath = stack?.[2]?.getFileName();
+    const fileCallSite = stack?.[howFarBack];
 
-    if (!fullPath) {
-        return undefined;
+    if (!fileCallSite) {
+        return emptyCaller;
+    }
+    const fileName = fileCallSite.getFileName();
+    const lineNumber = fileCallSite.getLineNumber();
+    const columnNumber = fileCallSite.getColumnNumber();
+
+    if (lineNumber == undefined || fileName == undefined || columnNumber == undefined) {
+        return emptyCaller;
     }
 
-    return relative(process.cwd(), fullPath) || undefined;
+    const caller: Caller = {
+        filePath: relative(process.cwd(), fileName),
+        lineNumber,
+        columnNumber,
+    };
+
+    return caller;
 }

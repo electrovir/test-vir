@@ -38,6 +38,18 @@ createTestGroup({
                 throw new Error('herp derp');
             },
         });
+        runTest({
+            expectError: {
+                errorClass: Error,
+            },
+            // this tests that we print output in the api as tests finish, not waiting till the end
+            description: 'long test',
+            test: async () => {
+                return new Promise<void>((resolve) => {
+                    setTimeout(() => resolve(), 5000);
+                });
+            },
+        });
     },
 });
 

@@ -1,10 +1,10 @@
 // EXAMPLES
 
 // when installed via npm this line should be
-// import {runTests} from 'test-vir';
-import {createTestGroup} from './test-group';
+// import {createTestGroup} from 'test-vir';
+import {createTestGroup} from '../test-runners/test-group';
 
-// runTests call must happen first, runTest is then accessed in the "tests" callback.
+// createTestGroup call must happen first, runTest is then accessed in the "tests" callback.
 createTestGroup({
     description: 'example tests',
     tests: (runTest) => {

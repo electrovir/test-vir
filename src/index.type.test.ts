@@ -1,11 +1,12 @@
-import {ResultState} from './result-state';
+import {TestError} from './errors/test-error';
+import {emptyCaller} from './get-caller-file';
+import {ResultState} from './test-runners/result-state';
 import {
     AcceptedTestInputs,
     IndividualTestResult,
     TestInputObject,
-} from './run-individual-test-types';
-import {TestError} from './test-error';
-import {createTestGroup} from './test-group';
+} from './test-runners/run-individual-test-types';
+import {createTestGroup} from './test-runners/test-group';
 
 /**
  * This file utilizes the "// @ts-expect-error" comment to write type assignment failure cases which
@@ -44,6 +45,7 @@ function inferTestObject<ResultTypeGeneric, ErrorClassGeneric>(
 type dummyResult = {
     output: any;
     error: any;
+    caller: any;
     success: any;
     input: any;
     resultState: ResultState;
@@ -53,7 +55,7 @@ const dummyResult: dummyResult = {} as dummyResult;
 inferTestResult(dummyResult);
 
 createTestGroup({
-    description: '',
+    description: 'success test group',
     tests: (runTest) => {
         runTest(() => undefined);
         runTest({expect: 3, test: () => 5});
@@ -144,6 +146,7 @@ inferTestResult({
     input: {
         test: () => {},
     },
+    caller: emptyCaller,
     output: undefined,
     error: new Error(),
     resultState: ResultState.Error,
@@ -155,6 +158,7 @@ inferTestResult({
         test: () => 5,
         expect: 5,
     },
+    caller: emptyCaller,
     output: undefined,
     error: new Error(),
     resultState: ResultState.Error,
@@ -258,6 +262,7 @@ inferTestResult({
         // @ts-expect-error
         expect: 'fdafda',
     },
+    caller: emptyCaller,
     output: undefined,
     error: new Error(),
     resultState: ResultState.Error,
@@ -271,6 +276,7 @@ inferTestResult({
         // @ts-expect-error
         expect: 'fdafda',
     },
+    caller: emptyCaller,
     output: undefined,
     error: undefined,
     resultState: ResultState.Error,

@@ -1,5 +1,7 @@
 import * as equal from 'fast-deep-equal';
-import {InternalVirTestError, throwInternalVirTestError} from './internal-vir-test-error';
+import {throwInternalVirTestError} from '../errors/internal-vir-test-error';
+import {TestError} from '../errors/test-error';
+import {Caller, getCaller} from '../get-caller-file';
 import {ResultState} from './result-state';
 import {
     AcceptedTestInputs,
@@ -8,7 +10,6 @@ import {
     OutputWithError,
     TestInputObject,
 } from './run-individual-test-types';
-import {TestError} from './test-error';
 
 export function isTestObject<ResultTypeGeneric, ErrorClassGeneric>(
     input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric>,
@@ -46,9 +47,10 @@ function errorsMatch<ErrorClassGeneric>(
  *   awaited. Deep equality checks are used on objects. Primitive, Object, Array, ArrayBuffer, Map,
  *   Set, and RegExp types are all supported.
  */
-export async function /* This function should not be exported. It is accessed through runTests's callback. */
+export async function /* This function should not be exported. It is accessed through createTestGroup's callback. */
 runIndividualTest<ResultTypeGeneric, ErrorClassGeneric>(
     input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric>,
+    caller: Caller = getCaller(1),
 ): Promise<Readonly<IndividualTestResult<ResultTypeGeneric, ErrorClassGeneric>>> {
     let testThrewError = false;
     let testCallbackError: unknown;
@@ -73,7 +75,9 @@ runIndividualTest<ResultTypeGeneric, ErrorClassGeneric>(
         input,
         output: undefined as OutputWithError<ResultTypeGeneric>,
         error: undefined,
+        caller,
     };
+
     let returnValue: IndividualTestResult<ResultTypeGeneric, ErrorClassGeneric>;
 
     try {
@@ -121,7 +125,7 @@ runIndividualTest<ResultTypeGeneric, ErrorClassGeneric>(
                     // check that the output matches the expectation
                     areEqual = equal(input.expect, testCallbackResult);
                     if (typeof areEqual !== 'boolean') {
-                        throw new InternalVirTestError(`equality check did not product a boolean`);
+                        throwInternalVirTestError(`equality check did not product a boolean`);
                     }
                 } catch (error) {
                     throwInternalVirTestError(error);

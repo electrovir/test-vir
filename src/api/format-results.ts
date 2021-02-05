@@ -1,64 +1,68 @@
-import * as styles from 'ansi-styles';
-import {ResultState, resultStateExplanations} from './result-state';
-import {isTestObject} from './run-individual-test';
-import {AcceptedTestInputs, IndividualTestResult} from './run-individual-test-types';
-import {ResolvedTestGroupOutput} from './test-group-types';
+import {FileNotFoundError} from '../errors/file-not-found-error';
+import {callerToString} from '../get-caller-file';
+import {colors, separator, tab} from '../string-output';
+import {ResultState, resultStateExplanations} from '../test-runners/result-state';
+import {isTestObject} from '../test-runners/run-individual-test';
+import {AcceptedTestInputs, IndividualTestResult} from '../test-runners/run-individual-test-types';
+import {ResolvedTestGroupOutput} from '../test-runners/test-group-types';
 
-const colors = {
-    info: styles.blue.open,
-    fail: styles.red.open,
-    success: styles.green.open,
-    reset: styles.reset.close,
-    bold: styles.bold.open,
-};
-
-const tab = '    ';
-
-const separator = `${colors.reset}:`;
-
-export function countFailures(runTestsResults: Readonly<ResolvedTestGroupOutput[]>): number {
-    return runTestsResults.reduce((count, singleRunTestsOutput) => {
+export function countFailures(testGroupResults: Readonly<ResolvedTestGroupOutput>[]): number {
+    return testGroupResults.reduce((count, singleTestGroupResult) => {
         return (
             count +
-            singleRunTestsOutput.allResults.reduce((innerCount, individualTestResult) => {
+            singleTestGroupResult.allResults.reduce((innerCount, individualTestResult) => {
                 return innerCount + Number(!individualTestResult.success);
             }, 0)
         );
     }, 0);
 }
 
-export function getFinalFailureMessage(runTestsResults: Readonly<ResolvedTestGroupOutput[]>) {
-    const failures = countFailures(runTestsResults);
+export function getFinalMessage(testGroupResults: Readonly<ResolvedTestGroupOutput>[]) {
+    const failures = countFailures(testGroupResults);
 
-    return `${getPassedColor(false)}${failures} Test${failures === 1 ? '' : 's'} Failed${
-        colors.reset
-    }`;
+    return failures > 0
+        ? `${getPassedColor(false)}${failures} Test${failures === 1 ? '' : 's'} Failed${
+              colors.reset
+          }`
+        : '';
 }
 
-export function formatResults(runTestsResults: Readonly<ResolvedTestGroupOutput[]>): string {
-    const formattedOutput = runTestsResults
-        .map((fileResults) => {
-            const testFilePassed = fileResults.allResults.every(
-                (individualResult) => individualResult.success,
-            );
-
-            const resultsOutput = fileResults.allResults
-                .map((individualResult, index) =>
-                    formatIndividualTestResults(individualResult, index),
-                )
-                .join('');
-
-            const results = `${getPassedString(testFilePassed)}${
-                testFilePassed ? ` (${fileResults.allResults.length} tests)` : resultsOutput
-            }`;
-
-            const output = `${fileResults.fileOrigin}${separator} ${getPassedColor(
-                testFilePassed,
-            )}${fileResults.description}${colors.reset}${separator} ${results}`;
-            return output;
-        })
+export function formatAllResults(testGroupResults: Readonly<ResolvedTestGroupOutput>[]): string {
+    const formattedOutput = testGroupResults
+        .map((testGroup) => formatSingleResult(testGroup))
         .join('\n');
-    return formattedOutput;
+    return `${formattedOutput}\n${getFinalMessage(testGroupResults)}`;
+}
+
+function isFileNotFoundError(input: Readonly<ResolvedTestGroupOutput>): boolean {
+    return input.allResults.length === 1 && input.allResults[0]?.error instanceof FileNotFoundError;
+}
+
+export function formatSingleResult(testGroupResult: Readonly<ResolvedTestGroupOutput>): string {
+    const testFilePassed: boolean = countFailures([testGroupResult]) === 0;
+
+    const description = `${getPassedColor(testFilePassed)}${callerToString(testGroupResult.caller, {
+        line: !isFileNotFoundError(testGroupResult),
+    })} ${testGroupResult.description}${colors.reset}`;
+
+    // no need for any more details if the file wasn't even found
+    if (isFileNotFoundError(testGroupResult)) {
+        return description;
+    }
+
+    const testCount = ` (${testGroupResult.allResults.length} test${
+        testGroupResult.allResults.length === 1 ? '' : 's'
+    })`;
+
+    const resultDetails =
+        testCount +
+        testGroupResult.allResults
+            .map((individualResult, index) => formatIndividualTestResults(individualResult, index))
+            .join('');
+
+    const result = `${getPassedString(testFilePassed)}${resultDetails}`;
+
+    return `${description}${separator} ${result}`;
 }
 
 function getPassedString(passed: boolean): string {
@@ -76,7 +80,9 @@ function formatIndividualTestResults(
         (individualResult.input &&
             isTestObject(individualResult.input) &&
             individualResult.input.description) ||
-        `Test ${index}`;
+        `${callerToString(individualResult.caller, {
+            file: false,
+        })}`;
 
     const stateString = `${getPassedString(individualResult.success)}${separator} ${
         resultStateExplanations[individualResult.resultState]
@@ -94,9 +100,9 @@ function formatIndividualTestResults(
         ? ''
         : `\n${tab}${tab}${failureReason}${inputString}`;
 
-    const testResultOutput = `\n${tab}${getPassedColor(
-        individualResult.success,
-    )}${testDescriptor}${separator} ${stateString}${failureExplanation}`;
+    const testResultOutput = `\n${tab}${getPassedColor(individualResult.success)}${testDescriptor}${
+        colors.reset
+    }${separator} ${stateString}${failureExplanation}`;
 
     return testResultOutput;
 }
@@ -150,16 +156,22 @@ function figureOutFailureReason(
                         return undefined;
                     }
                 })();
-                const outputObjectString = formatValue(
-                    (result.error && {
-                        errorClass: errorClassName,
-                        errorMessage: errorMessage,
-                    }) ||
-                        undefined,
-                    indent,
-                );
+                const outputValueString: string | undefined = result.error
+                    ? formatValue(
+                          {
+                              errorClass: errorClassName,
+                              errorMessage: errorMessage,
+                          },
+                          indent,
+                      )
+                    : undefined;
 
-                return `${colors.info}error expected${colors.reset}${separator}${expectObjectString}\n${tab}${colors.fail}but got${colors.reset}${separator}${outputObjectString}`;
+                const outputObjectString =
+                    outputValueString == undefined
+                        ? 'but no error was thrown'
+                        : `but got${colors.reset}${separator}${outputValueString}`;
+
+                return `${colors.info}expected thrown error${colors.reset}${separator}${expectObjectString}\n${tab}${colors.fail}${outputObjectString}`;
             } else {
                 return 'No error expectation was assigned.';
             }
