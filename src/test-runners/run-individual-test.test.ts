@@ -39,14 +39,22 @@ createTestGroup({
             },
         });
         runTest({
-            expectError: {
-                errorClass: Error,
-            },
             // this tests that we print output in the api as tests finish, not waiting till the end
             description: 'long test',
             test: async () => {
                 return new Promise<void>((resolve) => {
-                    setTimeout(() => resolve(), 5000);
+                    setTimeout(() => resolve(), 2000);
+                });
+            },
+        });
+        runTest({
+            description: 'async error test',
+            expectError: {
+                errorClass: Error,
+            },
+            test: async () => {
+                return new Promise<void>((_, reject) => {
+                    reject(new Error());
                 });
             },
         });

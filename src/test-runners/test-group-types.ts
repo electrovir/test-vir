@@ -7,7 +7,7 @@ import {IndividualTestResult, TestCommonProperties} from './run-individual-test-
  * Input parameter for the createTestGroup method. Description and test are required. Other optional
  * properties are defined in the TestCommonProperties type.
  */
-export type TestGroupInput = RequiredBy<
+export type TestGroup = RequiredBy<
     TestCommonProperties,
     'description' /* require that createTestGroup includes a description */
 > & {
@@ -20,7 +20,7 @@ export type PromisedTestGroupOutput = Overwrite<
 >;
 
 export type ResolvedTestGroupOutput = Readonly<
-    Required<Omit<TestGroupInput, 'tests'>> & {
+    Required<Omit<TestGroup, 'tests'>> & {
         allResults: IndividualTestResult<unknown, unknown>[];
         caller: Caller;
     }

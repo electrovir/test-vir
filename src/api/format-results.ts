@@ -6,7 +6,7 @@ import {isTestObject} from '../test-runners/run-individual-test';
 import {AcceptedTestInputs, IndividualTestResult} from '../test-runners/run-individual-test-types';
 import {ResolvedTestGroupOutput} from '../test-runners/test-group-types';
 
-export function countFailures(testGroupResults: Readonly<ResolvedTestGroupOutput>[]): number {
+function countFailures(testGroupResults: Readonly<ResolvedTestGroupOutput>[]): number {
     return testGroupResults.reduce((count, singleTestGroupResult) => {
         return (
             count +
@@ -54,13 +54,13 @@ export function formatSingleResult(testGroupResult: Readonly<ResolvedTestGroupOu
         testGroupResult.allResults.length === 1 ? '' : 's'
     })`;
 
-    const resultDetails =
-        testCount +
-        testGroupResult.allResults
-            .map((individualResult, index) => formatIndividualTestResults(individualResult, index))
-            .join('');
+    const resultDetails = testFilePassed
+        ? ''
+        : testGroupResult.allResults
+              .map((individualResult) => formatIndividualTestResults(individualResult))
+              .join('');
 
-    const result = `${getPassedString(testFilePassed)}${resultDetails}`;
+    const result = `${getPassedString(testFilePassed)}${testCount}${resultDetails}`;
 
     return `${description}${separator} ${result}`;
 }
@@ -74,7 +74,6 @@ function getPassedColor(passed: boolean): string {
 
 function formatIndividualTestResults(
     individualResult: IndividualTestResult<unknown, unknown>,
-    index: number,
 ): string {
     const testDescriptor: string =
         (individualResult.input &&
@@ -191,28 +190,47 @@ function replaceErrorClassString(input: string, className: string): string {
     return input.replace(`"errorClass": "${className}"`, `"errorClass": ${className}`);
 }
 
+/**
+ * Remove the quotes around the error class name so it can be seen that it looks like a class name
+ * instead of a string
+ */
+function replaceFunctionConstructorString(input: string): string {
+    return input.replace(`"Function"`, `Function`);
+}
+
 function formatInput(
-    input: AcceptedTestInputs<unknown, unknown> | undefined,
+    rawInput: AcceptedTestInputs<unknown, unknown> | undefined,
     indent: number,
 ): string {
-    if (input && 'expectError' in input && input.expectError && 'errorClass' in input.expectError) {
-        return replaceErrorClassString(
-            formatValue(
-                {
-                    ...input,
-                    expectError: {
-                        ...input.expectError,
-                        // this class constructor property gets stripped out in the JSON formatting so
-                        // here we'll convert it to a string so it can get printed
-                        errorClass: input.expectError.errorClass.name,
+    // include the test property even though it can't be serialized by JSON
+    const inputToPrint =
+        rawInput && 'test' in rawInput ? {...rawInput, test: 'Function'} : rawInput;
+
+    if (
+        inputToPrint &&
+        'expectError' in inputToPrint &&
+        inputToPrint.expectError &&
+        'errorClass' in inputToPrint.expectError
+    ) {
+        return replaceFunctionConstructorString(
+            replaceErrorClassString(
+                formatValue(
+                    {
+                        ...inputToPrint,
+                        expectError: {
+                            ...inputToPrint.expectError,
+                            // this class constructor property gets stripped out in the JSON formatting so
+                            // here we'll convert it to a string so it can get printed
+                            errorClass: inputToPrint.expectError.errorClass.name,
+                        },
                     },
-                },
-                indent,
+                    indent,
+                ),
+                inputToPrint.expectError.errorClass.name,
             ),
-            input.expectError.errorClass.name,
         );
     } else {
-        return formatValue(input, indent);
+        return replaceFunctionConstructorString(formatValue(inputToPrint, indent));
     }
 }
 

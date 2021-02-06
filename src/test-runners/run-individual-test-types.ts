@@ -31,7 +31,7 @@ export type TestInputObject<ResultTypeGeneric, ErrorClassGeneric> = TestCommonPr
          * without this, the never cascades up the whole type and whole object becomes never for some reason
          */
         | TestFunction<never>;
-} & (ResultTypeGeneric extends emptyFunctionReturn
+} & (ResultTypeGeneric extends EmptyFunctionReturn
         ? // if the test function returns void then there should not be any expect
           {
               expect?: undefined;
@@ -48,11 +48,11 @@ export type TestInputObject<ResultTypeGeneric, ErrorClassGeneric> = TestCommonPr
                     expectError: ErrorExpectation<ErrorClassGeneric>;
                 });
 
-export type emptyFunctionReturn = void | never | undefined;
+export type EmptyFunctionReturn = void | never | undefined;
 
 export type AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric> =
     | TestInputObject<ResultTypeGeneric, ErrorClassGeneric>
-    | TestFunction<emptyFunctionReturn>;
+    | TestFunction<EmptyFunctionReturn>;
 
 export type OutputWithError<ResultTypeGeneric> = ResultTypeGeneric extends undefined | void
     ? ResultTypeGeneric

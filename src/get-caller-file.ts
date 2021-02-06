@@ -7,8 +7,6 @@ export type Caller = {
     columnNumber: number;
 };
 
-callerToString({} as Caller);
-
 export function callerToString(
     input: Caller,
     options: {line?: boolean; file?: boolean} = {

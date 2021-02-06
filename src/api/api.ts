@@ -10,11 +10,21 @@ import {ResolvedTestGroupOutput} from '../test-runners/test-group-types';
 import {formatSingleResult, getFinalMessage} from './format-results';
 import {getAllGlobalResults} from './global-results';
 
+let alreadyRunning = false;
+
+export const recursiveRunAllTestFilesErrorMessage = `runAllTestFiles cannot be running inside of itself!`;
+
 export async function runAllTestFiles(
     inputFiles: string[],
 ): Promise<Promise<Readonly<ResolvedTestGroupOutput>>[]> {
+    if (alreadyRunning) {
+        throw new TestError(recursiveRunAllTestFilesErrorMessage);
+    } else {
+        alreadyRunning = true;
+    }
+
     try {
-        const files = await figureOutWhatFilesToUse(inputFiles);
+        const files = await expandGlobs(inputFiles);
 
         const importPromises: Promise<unknown>[] = [];
 
@@ -66,29 +76,37 @@ export async function runAllTestFiles(
     }
 }
 
-async function figureOutWhatFilesToUse(inputs: string[]): Promise<string[]> {
-    const foundFiles: string[] = [];
-    const lostFiles: string[] = [];
+/**
+ * Treats all input strings as file names. If one of the strings cannot be matched to a valid file,
+ * it is executed as a glob and the found files there are included in the output. If still no files
+ * are found, the original string is simply included in the output.
+ *
+ * Thus, the output of this function can include missing files which should still be handled downstream.
+ * The output will not contain duplicates.
+ */
+export async function expandGlobs(inputs: string[]): Promise<string[]> {
+    const foundFiles = new Set<string>();
+    const lostFiles = new Set<string>();
 
     await Promise.all(
         inputs.map(async (input) => {
             if (existsSync(input)) {
-                foundFiles.push(input);
+                foundFiles.add(input);
             } else {
                 // try glob expansion
                 const globFoundFiles: string[] = await glob(input);
                 if (globFoundFiles.length > 0) {
-                    foundFiles.push(...globFoundFiles);
+                    globFoundFiles.forEach((file) => foundFiles.add(file));
                 } else {
                     // we really couldn't find anything
-                    lostFiles.push(input);
+                    lostFiles.add(input);
                 }
             }
         }),
     );
 
     // combine all files, later in the pipeline we'll handle missing ones
-    return foundFiles.concat(lostFiles);
+    return Array.from(foundFiles).concat(Array.from(lostFiles));
 }
 
 async function main(): Promise<void> {
