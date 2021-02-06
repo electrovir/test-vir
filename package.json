@@ -5,8 +5,8 @@
     "main": "dist/index.js",
     "scripts": {
         "prepublishOnly": "npm run test && chmod +x dist/api.js",
-        "compile": "rm -rf dist; tsc",
-        "test": "npm run compile && node dist/api/api.js './**/!(*.type).test.js'",
+        "compile": "rm -rf dist && tsc",
+        "test": "npm run compile && node dist/api/api.js \"./**/!(*.type).test.js\"",
         "format": "prettier --ignore-path .gitignore --write './{,!(js-output)/**/}*.+(ts|json|html|css)'"
     },
     "repository": {
