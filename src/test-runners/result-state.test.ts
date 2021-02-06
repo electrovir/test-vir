@@ -1,7 +1,7 @@
-import {createTestGroup, isPassState} from '..';
+import {isPassState, testGroup} from '..';
 import {FailStates, PassStates} from './result-state';
 
-createTestGroup({
+testGroup({
     description: 'result state tests',
     tests: (runTest) => {
         runTest({

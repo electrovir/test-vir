@@ -5,14 +5,14 @@ import {getCaller} from '../get-caller-file';
 import {resolveTestGroupOutput} from './resolve-test-group-output';
 import {runIndividualTest} from './run-individual-test';
 import {AcceptedTestInputs, IndividualTestResult} from './run-individual-test-types';
-import {PromisedTestGroupOutput, ResolvedTestGroupOutput, TestGroup} from './test-group-types';
+import {PromisedTestGroupOutput, ResolvedTestGroupOutput, TestGroupInput} from './test-group-types';
 
 /**
  * Run tests. Tests are run through the callback provided to the "tests" property on the input object.
  *
  * @param input An object containing the test callback and description. See TestGroupInput for details.
  */
-export async function createTestGroup(input: TestGroup): Promise<ResolvedTestGroupOutput> {
+export async function testGroup(input: TestGroupInput): Promise<ResolvedTestGroupOutput> {
     // run time description checks
     if (!input.description || typeof input.description !== 'string') {
         throw new TestError(`Invalid test description: "${input.description}"`);

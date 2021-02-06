@@ -1,7 +1,7 @@
-import {createTestGroup, runAllTestFiles, TestError} from '..';
+import {runAllTestFiles, TestError, testGroup} from '..';
 import {expandGlobs, recursiveRunAllTestFilesErrorMessage} from './api';
 
-createTestGroup({
+testGroup({
     description: 'api tests',
     tests: (runTest) => {
         runTest({

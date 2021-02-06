@@ -1,7 +1,7 @@
-import {createTestGroup, ResultState} from '..';
+import {ResultState, testGroup} from '..';
 import {runIndividualTest} from './run-individual-test';
 
-createTestGroup({
+testGroup({
     description: 'test the tester',
     tests: (runTest) => {
         runTest({
@@ -60,7 +60,7 @@ createTestGroup({
     },
 });
 
-createTestGroup({
+testGroup({
     description: 'second test in file',
     tests: (runTest) => {
         runTest({

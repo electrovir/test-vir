@@ -14,9 +14,9 @@ export {
     TestFunction,
     TestInputObject,
 } from './test-runners/run-individual-test-types';
-export {createTestGroup} from './test-runners/test-group';
+export {testGroup} from './test-runners/test-group';
 export {
     PromisedTestGroupOutput,
     ResolvedTestGroupOutput,
-    TestGroup,
+    TestGroupInput,
 } from './test-runners/test-group-types';

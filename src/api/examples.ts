@@ -1,11 +1,11 @@
 // EXAMPLES
 
 // when installed via npm this line should be
-// import {createTestGroup} from 'test-vir';
-import {createTestGroup} from '..';
+// import {testGroup} from 'test-vir';
+import {testGroup} from '..';
 
-// createTestGroup call must happen first, runTest is then accessed in the "tests" callback.
-createTestGroup({
+// testGroup call must happen first, runTest is then accessed in the "tests" callback.
+testGroup({
     description: 'example tests',
     tests: (runTest) => {
         // just a function as the input with no return value.
@@ -35,7 +35,7 @@ createTestGroup({
     },
 });
 
-createTestGroup({
+testGroup({
     description: 'excluded tests',
     tests: (runTest) => {
         runTest(() => {
@@ -45,7 +45,7 @@ createTestGroup({
     exclude: true,
 });
 
-createTestGroup({
+testGroup({
     description: 'only run these tests, exclude all other tests',
     tests: (runTest) => {
         runTest(() => {

@@ -1,10 +1,10 @@
 import {
     AcceptedTestInputs,
-    createTestGroup,
     emptyCaller,
     IndividualTestResult,
     ResultState,
     TestError,
+    testGroup,
     TestInputObject,
 } from '.';
 
@@ -54,7 +54,7 @@ const dummyResult: dummyResult = {} as dummyResult;
 // if this fails then it is likely that a ResultState was left out of the definition for TestResult
 inferTestResult(dummyResult);
 
-createTestGroup({
+testGroup({
     description: 'success test group',
     tests: (runTest) => {
         runTest(() => undefined);
@@ -175,7 +175,7 @@ inferTestResult({
 //                       everything below here SHOULD fail
 //
 
-createTestGroup({
+testGroup({
     description: 'description',
     tests: (runTest) => {
         // tests that return a value must include an expectation
@@ -226,7 +226,7 @@ createTestGroup({
 
 // missing description
 // @ts-expect-error
-createTestGroup({
+testGroup({
     tests: (runTest) => {},
 });
 

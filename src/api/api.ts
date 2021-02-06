@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import {existsSync} from 'fs';
 import {promise as glob} from 'glob-promise';
 import {resolve} from 'path';
