@@ -1,4 +1,4 @@
-import {globalResults} from '../api/global-results';
+import {addGlobalResult} from '../api/global-results';
 import {throwInternalVirTestError} from '../errors/internal-vir-test-error';
 import {TestError} from '../errors/test-error';
 import {getCaller} from '../get-caller-file';
@@ -37,7 +37,7 @@ export async function createTestGroup(input: TestGroup): Promise<ResolvedTestGro
     };
 
     // insert into global results so the CLI can read it
-    globalResults.push(promisedResults);
+    addGlobalResult(promisedResults);
 
     try {
         await input.tests(wrappedRunTest);

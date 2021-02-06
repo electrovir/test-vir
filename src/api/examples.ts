@@ -2,7 +2,7 @@
 
 // when installed via npm this line should be
 // import {createTestGroup} from 'test-vir';
-import {createTestGroup} from '../test-runners/test-group';
+import {createTestGroup} from '..';
 
 // createTestGroup call must happen first, runTest is then accessed in the "tests" callback.
 createTestGroup({

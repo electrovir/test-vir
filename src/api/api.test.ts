@@ -1,6 +1,5 @@
-import {TestError} from '../errors/test-error';
-import {createTestGroup} from '../test-runners/test-group';
-import {expandGlobs, recursiveRunAllTestFilesErrorMessage, runAllTestFiles} from './api';
+import {createTestGroup, runAllTestFiles, TestError} from '..';
+import {expandGlobs, recursiveRunAllTestFilesErrorMessage} from './api';
 
 createTestGroup({
     description: 'api tests',
@@ -10,11 +9,7 @@ createTestGroup({
                 errorMessage: recursiveRunAllTestFilesErrorMessage,
                 errorClass: TestError,
             },
-            test: async () => {
-                const promisedResults = await runAllTestFiles(['']);
-                const resolvedResults = await Promise.all(promisedResults);
-                console.log(resolvedResults);
-            },
+            test: async () => await runAllTestFiles(['']),
         });
         runTest({
             expect: 1,
@@ -33,10 +28,10 @@ createTestGroup({
             },
         });
         runTest({
-            expect: 5,
+            expect: 3,
             description: 'glob syntax expands',
             test: async () => {
-                const files = await expandGlobs(['**/*.test.ts']);
+                const files = await expandGlobs(['./**/!(*.type).test.js']);
                 return files.length;
             },
         });

@@ -1,12 +1,12 @@
-import {TestError} from './errors/test-error';
-import {emptyCaller} from './get-caller-file';
-import {ResultState} from './test-runners/result-state';
 import {
     AcceptedTestInputs,
+    createTestGroup,
+    emptyCaller,
     IndividualTestResult,
+    ResultState,
+    TestError,
     TestInputObject,
-} from './test-runners/run-individual-test-types';
-import {createTestGroup} from './test-runners/test-group';
+} from '.';
 
 /**
  * This file utilizes the "// @ts-expect-error" comment to write type assignment failure cases which

@@ -1,5 +1,5 @@
-export {runAllTestFiles} from './api/api';
-export {formatAllResults, formatSingleResult} from './api/format-results';
+export {runAllTestFiles, runResolvedTestFiles} from './api/api';
+export {countFailures, formatAllResults, formatSingleResult} from './api/format-results';
 export {FileNotFoundError} from './errors/file-not-found-error';
 export {InternalVirTestError} from './errors/internal-vir-test-error';
 export {TestError} from './errors/test-error';

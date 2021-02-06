@@ -14,11 +14,12 @@ export function callerToString(
         file: true,
     },
 ) {
-    const file = 'file' in options && !options.file ? '' : `${input.filePath}${separator}`;
-    const line =
-        'line' in options && !options.line
-            ? ''
-            : `${input.lineNumber}${separator}${input.columnNumber}`;
+    const ignoreLine =
+        ('line' in options && !options.line) || input.lineNumber < 0 || input.columnNumber < 0;
+
+    const file =
+        'file' in options && !options.file ? '' : `${input.filePath}${ignoreLine ? '' : separator}`;
+    const line = ignoreLine ? '' : `${input.lineNumber}${separator}${input.columnNumber}`;
     return `${file}${line}`;
 }
 

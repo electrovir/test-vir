@@ -6,7 +6,7 @@
     "scripts": {
         "prepublishOnly": "npm run test && chmod +x dist/api.js",
         "compile": "rm -rf dist && tsc",
-        "test": "npm run compile && node dist/api/api.js \"./**/!(*.type).test.js\"",
+        "test": "npm run compile && node dist/api/api.js \"./**/!(*.type).test.js\" && node dist/api/api-test.js",
         "format": "prettier --ignore-path .gitignore --write './{,!(js-output)/**/}*.+(ts|json|html|css)'"
     },
     "repository": {
@@ -24,7 +24,7 @@
         "url": "https://github.com/electrovir/test-vir/issues"
     },
     "bin": {
-        "vir-test": "dist/api/api.js"
+        "test-vir": "dist/api/api.js"
     },
     "homepage": "https://github.com/electrovir/test-vir#readme",
     "devDependencies": {

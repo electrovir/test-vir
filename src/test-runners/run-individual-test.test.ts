@@ -1,6 +1,5 @@
-import {ResultState} from './result-state';
+import {createTestGroup, ResultState} from '..';
 import {runIndividualTest} from './run-individual-test';
-import {createTestGroup} from './test-group';
 
 createTestGroup({
     description: 'test the tester',
