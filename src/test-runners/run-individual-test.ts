@@ -1,10 +1,11 @@
 import * as equal from 'fast-deep-equal';
-import {throwInternalVirTestError} from '../errors/internal-vir-test-error';
+import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
 import {TestError} from '../errors/test-error';
 import {Caller, getCaller} from '../get-caller-file';
 import {ResultState} from './result-state';
 import {
     AcceptedTestInputs,
+    EmptyFunctionReturn,
     ErrorExpectation,
     IndividualTestResult,
     OutputWithError,
@@ -13,7 +14,9 @@ import {
 
 export function isTestObject<ResultTypeGeneric, ErrorClassGeneric>(
     input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric>,
-): input is TestInputObject<ResultTypeGeneric, ErrorClassGeneric> {
+): input is
+    | TestInputObject<ResultTypeGeneric, ErrorClassGeneric>
+    | TestInputObject<EmptyFunctionReturn, ErrorClassGeneric> {
     return typeof input !== 'function' && input.hasOwnProperty('test');
 }
 
@@ -125,10 +128,10 @@ runIndividualTest<ResultTypeGeneric, ErrorClassGeneric>(
                     // check that the output matches the expectation
                     areEqual = equal(input.expect, testCallbackResult);
                     if (typeof areEqual !== 'boolean') {
-                        throwInternalVirTestError(`equality check did not product a boolean`);
+                        throwInternalTestVirError(`equality check did not product a boolean`);
                     }
                 } catch (error) {
-                    throwInternalVirTestError(error);
+                    throwInternalTestVirError(error);
                 }
 
                 if (areEqual) {

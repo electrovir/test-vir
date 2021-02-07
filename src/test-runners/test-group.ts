@@ -1,5 +1,5 @@
 import {addGlobalResult} from '../api/global-results';
-import {throwInternalVirTestError} from '../errors/internal-vir-test-error';
+import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
 import {TestError} from '../errors/test-error';
 import {getCaller} from '../get-caller-file';
 import {resolveTestGroupOutput} from './resolve-test-group-output';
@@ -45,6 +45,6 @@ export async function testGroup(input: TestGroupInput): Promise<ResolvedTestGrou
     } catch (error) {
         // this should not happen because runTest should be catching all test errors
         console.error(error);
-        throwInternalVirTestError(`Test error was not caught by runTest: "${error}"`);
+        throwInternalTestVirError(`Test error was not caught by runTest: "${error}"`);
     }
 }

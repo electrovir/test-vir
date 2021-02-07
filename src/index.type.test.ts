@@ -119,6 +119,14 @@ testGroup({
                 throw new Error('herp derp');
             },
         });
+        runTest({
+            expectError: {
+                errorClass: Error,
+            },
+            test: () => {
+                throw new Error('herp derp');
+            },
+        });
     },
 });
 

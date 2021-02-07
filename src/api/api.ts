@@ -4,7 +4,7 @@ import {promise as glob} from 'glob-promise';
 import {resolve} from 'path';
 import {FileNotFoundError} from '../errors/file-not-found-error';
 import {FileNotUsedError} from '../errors/file-not-used-error';
-import {throwInternalVirTestError} from '../errors/internal-vir-test-error';
+import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
 import {TestError} from '../errors/test-error';
 import {emptyCaller} from '../get-caller-file';
 import {colors} from '../string-output';
@@ -28,6 +28,7 @@ export async function runResolvedTestFiles(
 export async function runAllTestFiles(
     inputFiles: string[],
 ): Promise<Promise<Readonly<ResolvedTestGroupOutput>>[]> {
+    throw new Error('Implement exclude and forceOnly for testGroup and for individual tests.');
     // prevent this function from running inside of itself as this will mess up the results
     if (alreadyRunning) {
         throw new TestError(recursiveRunAllTestFilesErrorMessage);
@@ -91,7 +92,7 @@ export async function runAllTestFiles(
 
         return resultPromises;
     } catch (error) {
-        throwInternalVirTestError(error);
+        throwInternalTestVirError(error);
     } finally {
         alreadyRunning = false;
     }
