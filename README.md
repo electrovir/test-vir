@@ -285,9 +285,11 @@ async function main() {
     const promisedResults = await runAllTestFiles(myFiles);
     promisedResults.forEach(async (promisedResult) => {
         // print test success as each test finishes
-        (await promisedResult).allResults.forEach((individualResult) => {
-            console.log(individualResult.success);
-        });
+        await Promise.all(
+            promisedResult.allResults.map(async (individualResult) => {
+                console.log((await individualResult).success);
+            }),
+        );
     });
 
     // make sure to await all results before doing anything else to make sure the tests are all finished
@@ -295,4 +297,5 @@ async function main() {
 }
 
 main();
+
 ```

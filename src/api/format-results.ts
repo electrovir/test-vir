@@ -5,9 +5,9 @@ import {colors, separator, tab} from '../string-output';
 import {ResultState, resultStateExplanations} from '../test-runners/result-state';
 import {isTestObject} from '../test-runners/run-individual-test';
 import {AcceptedTestInputs, IndividualTestResult} from '../test-runners/run-individual-test-types';
-import {ResolvedTestGroupOutput} from '../test-runners/test-group-types';
+import {ResolvedTestGroupResults} from '../test-runners/test-group-types';
 
-export function countFailures(testGroupResults: Readonly<ResolvedTestGroupOutput>[]): number {
+export function countFailures(testGroupResults: Readonly<ResolvedTestGroupResults>[]): number {
     return testGroupResults.reduce((count, singleTestGroupResult) => {
         return (
             count +
@@ -18,7 +18,7 @@ export function countFailures(testGroupResults: Readonly<ResolvedTestGroupOutput
     }, 0);
 }
 
-export function getFinalMessage(testGroupResults: Readonly<ResolvedTestGroupOutput>[]) {
+export function getFinalMessage(testGroupResults: Readonly<ResolvedTestGroupResults>[]) {
     const failures = countFailures(testGroupResults);
 
     return failures > 0
@@ -28,19 +28,25 @@ export function getFinalMessage(testGroupResults: Readonly<ResolvedTestGroupOutp
         : '';
 }
 
-export function formatAllResults(testGroupResults: Readonly<ResolvedTestGroupOutput>[]): string {
+export function formatAllResults(testGroupResults: Readonly<ResolvedTestGroupResults>[]): string {
     const formattedOutput = testGroupResults
         .map((testGroup) => formatSingleResult(testGroup))
         .join('\n');
     return `${formattedOutput}\n${getFinalMessage(testGroupResults)}`;
 }
 
-function isErrorResult(input: Readonly<ResolvedTestGroupOutput>, errorClass: new () => Error) {
+function isErrorResult(input: Readonly<ResolvedTestGroupResults>, errorClass: new () => Error) {
     return input.allResults.length === 1 && input.allResults[0]?.error instanceof errorClass;
 }
 
-export function formatSingleResult(testGroupResult: Readonly<ResolvedTestGroupOutput>): string {
+export function formatSingleResult(testGroupResult: Readonly<ResolvedTestGroupResults>): string {
     const testFilePassed: boolean = countFailures([testGroupResult]) === 0;
+    const ignoredTestCount: number = testGroupResult.allResults.reduce((accum, result) => {
+        if (result.resultState === ResultState.Ignored) {
+            return accum + 1;
+        }
+        return accum;
+    }, 0);
 
     const isEmptyDescription = !testGroupResult.description;
     const filePath = callerToString(testGroupResult.caller, {
@@ -50,6 +56,7 @@ export function formatSingleResult(testGroupResult: Readonly<ResolvedTestGroupOu
     const description = formatLineLeader(
         testFilePassed,
         isEmptyDescription ? filePath : testGroupResult.description,
+        ignoredTestCount > 0,
     );
 
     // no need for any more details if the file wasn't even found
@@ -62,9 +69,11 @@ export function formatSingleResult(testGroupResult: Readonly<ResolvedTestGroupOu
         return `${description}${separator} ${filePath}\n`;
     }
 
-    const testCount = ` (${testGroupResult.allResults.length} test${
-        testGroupResult.allResults.length === 1 ? '' : 's'
-    })`;
+    const ignoredTestString = ignoredTestCount ? `, ${ignoredTestCount} ignored` : '';
+
+    const testCount = ` ${colors.reset}${ignoredTestCount ? colors.warn : ''}(${
+        testGroupResult.allResults.length
+    } test${testGroupResult.allResults.length === 1 ? '' : 's'}${ignoredTestString})`;
 
     const resultDetails = testFilePassed
         ? ''
@@ -72,25 +81,31 @@ export function formatSingleResult(testGroupResult: Readonly<ResolvedTestGroupOu
               .map((individualResult) => formatIndividualTestResults(individualResult))
               .join('');
 
-    const result = `${colors.reset}${testCount}${colors.info} ${
-        isEmptyDescription ? '' : filePath
-    }${colors.reset}${resultDetails}`;
+    const result = `${testCount}${colors.info} ${isEmptyDescription ? '' : filePath}${
+        colors.reset
+    }${resultDetails}`;
 
     const whiteSpace = testFilePassed ? '' : '\n';
 
     return `${whiteSpace}${description}${result}${whiteSpace}`;
 }
 
-export function getPassedString(passed: boolean): string {
-    return `${getPassedColor(passed)}${passed ? `Passed` : `Failed`}`;
+export function getPassedString(passed: boolean, containsWarning = false): string {
+    return `${getPassedColor(passed, containsWarning)}${passed ? `Passed` : `Failed`}`;
 }
 
-export function getPassedColor(passed: boolean): string {
-    return `${colors.bold}${passed ? colors.success : colors.fail}`;
+export function getPassedColor(passed: boolean, containsWarning = false): string {
+    const passedColor = containsWarning ? colors.warn : colors.success;
+
+    return `${colors.bold}${passed ? passedColor : colors.fail}`;
 }
 
-export function formatLineLeader(success: boolean, description: string): string {
-    return `${getPassedString(success)}${separator} ${description}`;
+export function formatLineLeader(
+    success: boolean,
+    description: string,
+    containsWarning = false,
+): string {
+    return `${getPassedString(success, containsWarning)}${separator} ${description}`;
 }
 
 function formatIndividualTestResults(
@@ -104,9 +119,11 @@ function formatIndividualTestResults(
             file: false,
         })}`;
 
-    const description = `${formatLineLeader(individualResult.success, testDescriptor)}${
-        colors.reset
-    }${separator} ${resultStateExplanations[individualResult.resultState]}`;
+    const description = `${formatLineLeader(
+        individualResult.success,
+        testDescriptor,
+        individualResult.resultState === ResultState.Ignored,
+    )}${colors.reset}${separator} ${resultStateExplanations[individualResult.resultState]}`;
 
     const failureReason = figureOutFailureReason(individualResult, 2).split('\n').join(`\n${tab}`);
     const inputString = individualResult.input
@@ -130,6 +147,7 @@ function figureOutFailureReason(
     indent: number,
 ): string {
     switch (result.resultState) {
+        case ResultState.Ignored:
         case ResultState.NoCheckPass:
         case ResultState.ExpectMatchPass:
         case ResultState.ErrorMatchPass:

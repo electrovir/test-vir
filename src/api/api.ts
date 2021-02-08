@@ -2,16 +2,13 @@
 import {existsSync} from 'fs';
 import {promise as glob} from 'glob-promise';
 import {resolve} from 'path';
-import {FileNotFoundError} from '../errors/file-not-found-error';
-import {FileNotUsedError} from '../errors/file-not-used-error';
 import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
 import {TestError} from '../errors/test-error';
-import {emptyCaller} from '../get-caller-file';
 import {colors} from '../string-output';
-import {ResultState} from '../test-runners/result-state';
-import {PromisedTestGroupOutput, ResolvedTestGroupOutput} from '../test-runners/test-group-types';
+import {getAndClearGlobalTests} from '../test-runners/global-tests';
+import {resolveTestGroupResults, runTestGroups} from '../test-runners/test-group-runner';
+import {PromisedTestGroupResults, ResolvedTestGroupResults} from '../test-runners/test-group-types';
 import {formatSingleResult, getFinalMessage, getPassedColor} from './format-results';
-import {getAllGlobalResults, getUnresolvedGlobalResults} from './global-results';
 
 let alreadyRunning = false;
 
@@ -19,16 +16,12 @@ export const recursiveRunAllTestFilesErrorMessage = `runAllTestFiles cannot be r
 
 export async function runResolvedTestFiles(
     inputFiles: string[],
-): Promise<Readonly<ResolvedTestGroupOutput>[]> {
+): Promise<Readonly<ResolvedTestGroupResults>[]> {
     const promisedResults = await runAllTestFiles(inputFiles);
-    const resolvedResults = await Promise.all(promisedResults);
-    return resolvedResults;
+    return resolveTestGroupResults(promisedResults);
 }
 
-export async function runAllTestFiles(
-    inputFiles: string[],
-): Promise<Promise<Readonly<ResolvedTestGroupOutput>>[]> {
-    throw new Error('Implement exclude and forceOnly for testGroup and for individual tests.');
+export async function runAllTestFiles(inputFiles: string[]): Promise<PromisedTestGroupResults[]> {
     // prevent this function from running inside of itself as this will mess up the results
     if (alreadyRunning) {
         throw new TestError(recursiveRunAllTestFilesErrorMessage);
@@ -60,35 +53,12 @@ export async function runAllTestFiles(
         // await all the imports
         await Promise.all(importPromises);
 
-        // wrapped in promises so they're compatible with the return type
-        const lostFileResults: Promise<Readonly<ResolvedTestGroupOutput>>[] = lostFiles.map(
-            async (lostFilePath) => {
-                const errorResult: Readonly<ResolvedTestGroupOutput> = {
-                    allResults: [
-                        {
-                            error: new FileNotFoundError(`File not found: ${lostFilePath}`),
-                            input: undefined,
-                            output: undefined,
-                            resultState: ResultState.Error,
-                            success: false,
-                            caller: emptyCaller,
-                        },
-                    ],
-                    description: 'File not found',
-                    exclude: false,
-                    forceOnly: false,
-                    caller: {filePath: lostFilePath, lineNumber: -1, columnNumber: -1},
-                };
-                return errorResult;
-            },
-        );
+        const globalTestGroups = getAndClearGlobalTests();
 
-        const unusedFileResults = testFoundFilesForUsage(foundFiles, getUnresolvedGlobalResults());
-
-        const resultPromises = getAllGlobalResults().concat(
-            lostFileResults,
-            unusedFileResults.map((result) => Promise.resolve(result)),
-        );
+        const resultPromises = await runTestGroups(globalTestGroups, {
+            found: foundFiles,
+            lost: lostFiles,
+        });
 
         return resultPromises;
     } catch (error) {
@@ -131,36 +101,6 @@ export async function expandGlobs(inputs: string[]): Promise<string[]> {
     return Array.from(foundFiles).concat(Array.from(lostFiles));
 }
 
-function testFoundFilesForUsage(
-    filePaths: string[],
-    results: Readonly<PromisedTestGroupOutput[]>,
-): Readonly<ResolvedTestGroupOutput>[] {
-    const foundFilesSet = new Set(results.map((result) => resolve(result.caller.filePath)));
-
-    const unusedFiles = filePaths.filter((filePath) => {
-        return !foundFilesSet.has(resolve(filePath));
-    });
-
-    return unusedFiles.map((unusedFilePath) => {
-        return {
-            allResults: [
-                {
-                    error: new FileNotUsedError(`File contained no tests: ${unusedFilePath}`),
-                    input: undefined,
-                    output: undefined,
-                    resultState: ResultState.Error,
-                    success: false,
-                    caller: emptyCaller,
-                },
-            ],
-            description: 'File contains no tests',
-            exclude: false,
-            forceOnly: false,
-            caller: {filePath: unusedFilePath, lineNumber: -1, columnNumber: -1},
-        };
-    });
-}
-
 async function main(): Promise<void> {
     const inputs = process.argv.slice(2);
     if (!inputs.length) {
@@ -169,15 +109,15 @@ async function main(): Promise<void> {
                 `Globs are also supported.`,
         );
     }
-    const promisedResults = await runAllTestFiles(inputs);
+    const promisedResults: PromisedTestGroupResults[] = await runAllTestFiles(inputs);
 
     // await each promise individually so results can print as the tests finish
     promisedResults.forEach(async (resultPromise) => {
-        console.log(formatSingleResult(await resultPromise));
+        console.log(formatSingleResult(await resolveTestGroupResults(resultPromise)));
     });
 
     // await all promises so we make sure they're all done before continuing
-    const resolvedResults = await Promise.all(promisedResults);
+    const resolvedResults = await resolveTestGroupResults(promisedResults);
 
     const failureMessage = getFinalMessage(resolvedResults);
 

@@ -50,7 +50,7 @@ function errorsMatch<ErrorClassGeneric>(
  *   awaited. Deep equality checks are used on objects. Primitive, Object, Array, ArrayBuffer, Map,
  *   Set, and RegExp types are all supported.
  */
-export async function /* This function should not be exported. It is accessed through testGroup's callback. */
+export async function /* This function should not be exported from the package. It is accessed through testGroup's callback. */
 runIndividualTest<ResultTypeGeneric, ErrorClassGeneric>(
     input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric>,
     caller: Caller = getCaller(1),

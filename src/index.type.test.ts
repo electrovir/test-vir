@@ -51,7 +51,7 @@ type dummyResult = {
     resultState: ResultState;
 };
 const dummyResult: dummyResult = {} as dummyResult;
-// if this fails then it is likely that a ResultState was left out of the definition for TestResult
+// if this fails then it is likely that a ResultState was left out of the definition for IndividualTestResult
 inferTestResult(dummyResult);
 
 testGroup({
@@ -198,6 +198,7 @@ testGroup({
         // a test with an expectation must return a value
         // @ts-expect-error
         runTest({expect: 4, test: () => {}});
+
         runTest({
             test: () => {
                 const hello = 'give';

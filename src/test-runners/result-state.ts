@@ -22,6 +22,10 @@ export enum ResultState {
      */
     ErrorMatchPass = 'error-match-pass',
     /**
+     * The test was ignored
+     */
+    Ignored = 'ignored',
+    /**
      * the test callback threw an error and no error expectation was present
      */
     Error = 'error',
@@ -50,4 +54,5 @@ export const resultStateExplanations: Record<ResultState, string> = {
     [ResultState.ErrorMatchPass]: 'The test threw an error that met error expectations.',
     [ResultState.ErrorMatchFail]: 'The test threw an error that did not meet error expectations.',
     [ResultState.Error]: 'The test encountered an error.',
+    [ResultState.Ignored]: 'The test was ignored.',
 };

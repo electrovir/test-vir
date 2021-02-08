@@ -8,12 +8,16 @@ export type Caller = {
 };
 
 export function callerToString(
-    input: Caller,
+    input?: Caller,
     options: {line?: boolean; file?: boolean} = {
         line: true,
         file: true,
     },
-) {
+): string {
+    if (!input) {
+        return callerToString(emptyCaller, options);
+    }
+
     const ignoreLine =
         ('line' in options && !options.line) || input.lineNumber < 0 || input.columnNumber < 0;
 
