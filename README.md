@@ -21,6 +21,7 @@ Tests are written within the [`testGroup`](https://github.com/electrovir/test-vi
 See the following example:
 
 ```typescript
+// `first-test-group-example.ts`
 import {testGroup} from 'test-vir';
 
 testGroup({
@@ -55,6 +56,8 @@ Note the following rules. These rules are enforced by the type system (if you're
 -   `expectError` accepts an object which tests the error's constructor and/or message, like the following:
 
     ```typescript
+    // expectations.ts
+    // expectError examples
     runTest({
         expectError: {
             // this test will pass if the test throws an error which is an instance of class Error
@@ -93,6 +96,8 @@ Note the following rules. These rules are enforced by the type system (if you're
 
 -   `expect` and `expectError` cannot _both_ be set on the same test object
     ```typescript
+    // expectations.ts
+    // expect and expectError example
     runTest({
         // this is invalid
         expect: 4,
@@ -105,22 +110,25 @@ Note the following rules. These rules are enforced by the type system (if you're
 -   The `expect` property _must_ be present if the test function has an expected return type and the type of the `expect` value must match that same type, as seen below:
 
     ```typescript
+    // expectations.ts
+    // expect vs return value expectation example
     runTest({
-        // this is invalid because the test function has a return type of string but expect has a
-        // type of number
+        // this is invalid because the test function has a return type of string but expect has
+        // a type of number
         expect: 4,
-        test: () => 'hello there'
+        test: () => 'hello there',
     });
-
     runTest({
         // this is valid because both the test function and expect have the type number
         expect: 4,
-        test: () => 3
+        test: () => 3,
     });
     ```
 
 -   If a test function always returns [`void`](https://www.typescriptlang.org/docs/handbook/basic-types.html#void) (or nothing) then it cannot have any `expect` property (though it can have an `expectError` property). This is the same as the expect property and test function return types not matching.
     ```typescript
+    // expectations.ts
+    // expect and void return type example
     runTest({
         // this is invalid because the types don't match
         expect: 4,
@@ -141,6 +149,7 @@ The input object to both `testGroup` and `runTest` accept the extra properties [
 ### `exclude` examples
 
 ```typescript
+// excluding-tests.ts
 import {testGroup} from 'test-vir';
 
 // this test group will not appear in the results because it is excluded
@@ -182,6 +191,7 @@ testGroup({
 ### `forceOnly` examples
 
 ```typescript
+// forcing-tests.ts
 import {testGroup} from 'test-vir';
 
 // this test group will not appear in the results because the other group is forced
@@ -267,13 +277,10 @@ test-vir "./**/!(*.type).test.js"
 
 All the test functions are exported so that they can be used in TS (or JS) Node.js scripts. These are used by the CLI so all output will be identical.
 
-### Reading test output directly
-
-<TODO: add description for reading output of testGroup directly>
-
 ### Testing files
 
 ```typescript
+// testing-files.ts
 import {runResolvedTestFiles} from 'test-vir';
 
 async function main() {
@@ -290,6 +297,7 @@ main();
 If any file strings are not found a actual file names they will be expanded to all matching actual file names.
 
 ```typescript
+// testing-files-with-glob.ts
 import {runResolvedTestFiles} from 'test-vir';
 
 async function main() {
@@ -306,6 +314,7 @@ main();
 The exported function `runResolvedTestFiles` resolves all promises so that all the final data is present. This means that it does not resolve until _all tests are finished_. If you wish to respond to each test as it finishes (like the CLI does, printing results as each test finishes), use `runAllTestFiles` to get an array of promises:
 
 ```typescript
+// responding-one-by-one.ts
 import {runAllTestFiles} from 'test-vir';
 
 async function main() {
@@ -326,5 +335,4 @@ async function main() {
 }
 
 main();
-
 ```

@@ -1,7 +1,8 @@
+// first-test-group-example.ts
 import {testGroup} from '..';
 
 testGroup({
-    // description is required for all every call to testGroup
+    // description is required for every call to testGroup
     description: 'my test group',
     tests: (runTest) => {
         runTest({

@@ -1,3 +1,4 @@
+// excluding-tests.ts
 import {testGroup} from '..';
 
 // this test group will not appear in the results because it is excluded
