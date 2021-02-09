@@ -162,21 +162,32 @@ function figureOutFailureReason(
             }
         case ResultState.ErrorMatchFail:
             if (result.input && isTestObject(result.input)) {
-                const expectObjectString =
-                    ('expectError' in result.input &&
-                        (result.input.expectError && 'errorClass' in result.input.expectError
-                            ? replaceErrorClassString(
-                                  formatValue(
-                                      {
-                                          ...result.input.expectError,
-                                          errorClass: result.input.expectError.errorClass.name,
-                                      },
-                                      indent,
-                                  ),
-                                  result.input.expectError.errorClass.name,
-                              )
-                            : formatValue(result.input.expectError, indent))) ||
-                    undefined;
+                const serializedErrorMessageExpect =
+                    'expectError' in result.input && result.input.expectError
+                        ? ({
+                              ...result.input.expectError,
+                              ...('errorClass' in result.input.expectError
+                                  ? {
+                                        errorClass: result.input.expectError.errorClass.name,
+                                    }
+                                  : {errorClass: undefined}),
+                              ...('errorMessage' in result.input.expectError
+                                  ? {
+                                        errorMessage: String(result.input.expectError.errorMessage),
+                                    }
+                                  : {errorMessage: undefined}),
+                              // this cast is valid because we're constructing this object from
+                              // another of the same type so if it was originally the correct type,
+                              // it still is!
+                          } as const)
+                        : undefined;
+
+                const expectObjectString = serializedErrorMessageExpect
+                    ? replaceErrorClassString(
+                          formatValue(serializedErrorMessageExpect, indent),
+                          serializedErrorMessageExpect.errorClass,
+                      )
+                    : undefined;
 
                 const errorClassName: string | undefined = (() => {
                     try {
@@ -223,8 +234,12 @@ function figureOutFailureReason(
  * Remove the quotes around the error class name so it can be seen that it looks like a class name
  * instead of a string
  */
-function replaceErrorClassString(input: string, className: string): string {
-    return input.replace(`"errorClass": "${className}"`, `"errorClass": ${className}`);
+function replaceErrorClassString(input: string, className?: string): string {
+    if (className) {
+        return input.replace(`"errorClass": "${className}"`, `"errorClass": ${className}`);
+    } else {
+        return input;
+    }
 }
 
 /**

@@ -57,6 +57,17 @@ testGroup({
                 });
             },
         });
+        runTest({
+            description: 'test regexp error message expectation',
+            expectError: {
+                errorMessage: /something\d+/,
+            },
+            test: async () => {
+                return new Promise<void>((_, reject) => {
+                    reject(new Error('something' + (100 * Math.random()).toFixed(0)));
+                });
+            },
+        });
     },
 });
 

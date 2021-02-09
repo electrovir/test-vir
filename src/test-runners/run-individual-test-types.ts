@@ -13,14 +13,16 @@ export type TestCommonProperties = {
     forceOnly?: boolean;
 };
 
+export type ErrorMessageExpectation = string | RegExp;
+
 export type ErrorExpectation<ErrorClassGeneric> =
     | {
           errorClass: new () => ErrorClassGeneric;
       }
     | {
-          errorMessage: string;
+          errorMessage: ErrorMessageExpectation;
       }
-    | {errorMessage: string; errorClass: new () => ErrorClassGeneric};
+    | {errorMessage: ErrorMessageExpectation; errorClass: new () => ErrorClassGeneric};
 
 /** Input object for running an individual test via runTest's runTest callback. */
 export type TestInputObject<ResultTypeGeneric, ErrorClassGeneric> = TestCommonProperties & {

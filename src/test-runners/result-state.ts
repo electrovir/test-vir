@@ -35,6 +35,7 @@ export const PassStates = [
     ResultState.ExpectMatchPass,
     ResultState.NoCheckPass,
     ResultState.ErrorMatchPass,
+    ResultState.Ignored,
 ] as const;
 
 export const FailStates = [

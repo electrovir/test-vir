@@ -1,9 +1,10 @@
 export {runAllTestFiles, runResolvedTestFiles} from './api/api';
 export {countFailures, formatAllResults, formatSingleResult} from './api/format-results';
 export {FileNotFoundError} from './errors/file-not-found-error';
+export {FileNotUsedError} from './errors/file-not-used-error';
 export {InternalTestVirError} from './errors/internal-test-vir-error';
 export {TestError} from './errors/test-error';
-export {Caller, emptyCaller} from './get-caller-file';
+export {Caller, callerToString, emptyCaller} from './get-caller-file';
 export {isPassState, ResultState, resultStateExplanations} from './test-runners/result-state';
 export {
     AcceptedTestInputs,
@@ -14,9 +15,13 @@ export {
     TestInputObject,
 } from './test-runners/run-individual-test-types';
 export {testGroup} from './test-runners/test-group';
-export {runTestGroups as resolveTestGroupOutput} from './test-runners/test-group-runner';
+export {runTestGroups} from './test-runners/test-group-runner';
 export {
-    PromisedTestGroupResults as PromisedTestGroupOutput,
-    ResolvedTestGroupResults as ResolvedTestGroupOutput,
+    IgnoredReason,
+    PromisedTestGroupResults,
+    ResolvedTestGroupResults,
+    runTest,
     TestGroupInput,
+    TestGroupOutput,
+    WrappedTest,
 } from './test-runners/test-group-types';

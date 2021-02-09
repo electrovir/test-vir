@@ -2,9 +2,9 @@
 
 The heroic testing package.
 
-Simple, typed, no magical globals, and contains CLI and JS APIs.
+Simple, typed, no magical globals, with CLI and JS APIs.
 
-This currently only works with pure JS scripts: if you're using TS (`.ts`) you must compile it to JS (`.js`) first.
+This currently only works with pure JS scripts: if you're using TS (`.ts`) you must compile it to JS (`.js`) first. Tests verify that this runs in Mac, Linux, and Windows Node.js (12.x and 14.x) environments.
 
 # Install
 
@@ -16,7 +16,7 @@ It is likely that this package should only be included in devDependencies (as it
 
 # Writing Tests
 
-Tests are written in groups with the [`testGroup`](https://github.com/electrovir/test-vir/blob/master/src/test-runners/test-group.ts#L15) function. `testGroup` accepts an object of type [`TestGroupInput`](https://github.com/electrovir/test-vir/blob/master/src/test-runners/test-group-types.ts#L10). The [`tests`](https://github.com/electrovir/test-vir/blob/master/src/test-runners/test-group-types.ts#L14) property for `TestGroupInput` accepts a function which is passed a callback by `testGroup` to run individual tests. The given callback accepts inputs of type [`TestInputObject`](https://github.com/electrovir/test-vir/blob/master/src/test-runners/run-individual-test-types.ts#L26).
+Tests are written within the [`testGroup`](https://github.com/electrovir/test-vir/blob/master/src/test-runners/test-group.ts#L15) function. `testGroup` accepts an object of type [`TestGroupInput`](https://github.com/electrovir/test-vir/blob/master/src/test-runners/test-group-types.ts#L10). The [`tests`](https://github.com/electrovir/test-vir/blob/master/src/test-runners/test-group-types.ts#L14) property for `TestGroupInput` accepts a function which is passed a callback by `testGroup` to run individual tests. The given callback accepts inputs of type [`TestInputObject`](https://github.com/electrovir/test-vir/blob/master/src/test-runners/run-individual-test-types.ts#L26).
 
 See the following example:
 
@@ -24,7 +24,7 @@ See the following example:
 import {testGroup} from 'test-vir';
 
 testGroup({
-    // description is required for all every call to testGroup
+    // description is required for every call to testGroup
     description: 'my test group',
     tests: (runTest) => {
         runTest({
@@ -38,6 +38,12 @@ testGroup({
 });
 ```
 
+Since the callback is just a callback, you can run as many tests as you like within a single `testGroup`!
+
+## Examples
+
+[See the `src/readme-examples` folder](https://github.com/electrovir/test-vir/tree/master/src/readme-examples) for examples used in this README.
+
 ## `runTest` details
 
 ### Expectations
@@ -47,6 +53,7 @@ The `runTest` callback accepts an object that allows expectations to be set for 
 Note the following rules. These rules are enforced by the type system (if you're using TypeScript).
 
 -   `expectError` accepts an object which tests the error's constructor and/or message, like the following:
+
     ```typescript
     runTest({
         expectError: {
@@ -56,12 +63,34 @@ Note the following rules. These rules are enforced by the type system (if you're
             errorMessage: 'hello there',
         },
         test: () => {
-            // since this test always throws an error of class Error and message 'hello there', it
-            // will always pass the test
+            // since this test always throws an error of class Error and message of 'hello there',
+            // it will always pass the test
+            throw new Error('hello there');
+        },
+    });
+    runTest({
+        expectError: {
+            // this test will pass if the test throws an error which is an instance of class Error
+            errorClass: Error,
+        },
+        test: () => {
+            // since this test always throws an error of class Error, it will always pass the test
+            throw new Error('hello there');
+        },
+    });
+    runTest({
+        expectError: {
+            // this test will pass if the test throws an error with a message that matches 'hello there'
+            errorMessage: 'hello there',
+        },
+        test: () => {
+            // since this test always throws an error with message 'hello there', it will always
+            // pass the test
             throw new Error('hello there');
         },
     });
     ```
+
 -   `expect` and `expectError` cannot _both_ be set on the same test object
     ```typescript
     runTest({
