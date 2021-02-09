@@ -1,10 +1,10 @@
 {
     "name": "test-vir",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "The heroic testing package",
     "main": "dist/index.js",
     "scripts": {
-        "prepublishOnly": "npm run test && chmod +x dist/api.js",
+        "prepublishOnly": "npm run test && chmod +x dist/api/api.js",
         "compile": "rm -rf dist && tsc",
         "test": "npm run compile && node dist/api/api.js \"./**/!(*.type).test.js\" && node dist/api/api-test.js",
         "format": "prettier --ignore-path .gitignore --write './{,!(js-output)/**/}*.+(ts|json|html|css)'"
@@ -14,8 +14,10 @@
         "url": "git+https://github.com/electrovir/test-vir.git"
     },
     "keywords": [
+        "automated",
         "test",
         "testing",
+        "tests",
         "vir"
     ],
     "author": "electrovir (github.com/electrovir)",
