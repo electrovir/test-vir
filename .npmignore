@@ -1,7 +1,7 @@
 .github
 .vscode
-dist/test/
-dist/*.test.*
+dist/tests
+dist/readme-examples
 src
 .prettierrc.json
 prettierignore

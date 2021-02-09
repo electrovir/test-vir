@@ -1,5 +1,5 @@
 import {runAllTestFiles, TestError, testGroup} from '..';
-import {expandGlobs, recursiveRunAllTestFilesErrorMessage} from './api';
+import {expandGlobs, recursiveRunAllTestFilesErrorMessage} from '../api/api';
 
 testGroup({
     description: 'api tests',

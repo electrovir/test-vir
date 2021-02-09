@@ -5,8 +5,8 @@
 
 import {relative} from 'path';
 import {countFailures, runResolvedTestFiles} from '..';
+import {formatLineLeader} from '../api/format-results';
 import {colors} from '../string-output';
-import {formatLineLeader} from './format-results';
 
 async function main() {
     const testResults = await runResolvedTestFiles(['./**/!(*.type).test.js']);
@@ -14,7 +14,7 @@ async function main() {
         throw new Error(`Failed to test normal files.`);
     }
 
-    const noResults = await runResolvedTestFiles(['./**/empty-test-file.js']);
+    const noResults = await runResolvedTestFiles(['./**/empty-file-test.js']);
     if (!noResults.length || !countFailures(noResults)) {
         throw new Error(`empty test files should cause failures`);
     }

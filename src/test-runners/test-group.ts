@@ -1,7 +1,7 @@
 import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
 import {TestError} from '../errors/test-error';
 import {getCaller} from '../get-caller-file';
-import {addGlobalTest} from './global-tests';
+import {addGlobalTest} from './global';
 import {AcceptedTestInputs} from './run-individual-test-types';
 import {TestGroupInput, TestGroupOutput, WrappedTest} from './test-group-types';
 

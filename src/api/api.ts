@@ -5,7 +5,7 @@ import {resolve} from 'path';
 import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
 import {TestError} from '../errors/test-error';
 import {colors} from '../string-output';
-import {getAndClearGlobalTests} from '../test-runners/global-tests';
+import {getAndClearGlobalTests} from '../test-runners/global';
 import {resolveTestGroupResults, runTestGroups} from '../test-runners/test-group-runner';
 import {PromisedTestGroupResults, ResolvedTestGroupResults} from '../test-runners/test-group-types';
 import {formatSingleResult, getFinalMessage, getPassedColor} from './format-results';
