@@ -1,8 +1,9 @@
 import {resolve} from 'path';
+import {EmptyTestGroupError} from '../errors/empty-test-group-error';
 import {FileNotFoundError} from '../errors/file-not-found-error';
 import {FileNotUsedError} from '../errors/file-not-used-error';
 import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
-import {emptyCaller} from '../get-caller-file';
+import {Caller, emptyCaller} from '../get-caller-file';
 import {ResultState} from './result-state';
 import {isTestObject, runIndividualTest} from './run-individual-test';
 import {
@@ -45,34 +46,12 @@ export async function runTestGroups(
     testGroups: TestGroupOutput[],
     files?: {found: string[]; lost: string[]},
 ): Promise<PromisedTestGroupResults[]> {
-    const lostFileTestGroups: FilteredTestGroupOutput[] = files
-        ? files.lost.map(
-              (lostFilePath): FilteredTestGroupOutput => {
-                  const lostFileCaller = {...emptyCaller, filePath: lostFilePath};
-
-                  return {
-                      caller: lostFileCaller,
-                      description: 'File not found',
-                      exclude: false,
-                      forceOnly: false,
-                      tests: [
-                          {
-                              input: () => {
-                                  throw new FileNotFoundError(`File not found: ${lostFilePath}`);
-                              },
-                              caller: lostFileCaller,
-                              ignored: undefined,
-                          },
-                      ],
-                      ignored: undefined,
-                  };
-              },
-          )
-        : [];
+    const lostFileTestGroups = createLostFileGroups(files ? files.lost : []);
     const filteredTestGroups = filterTestGroups(testGroups);
-    const unusedFileTestGroups = files
-        ? getUnusedFileErrorGroups(files.found, filteredTestGroups)
-        : [];
+    const unusedFileTestGroups = getUnusedFileErrorGroups(
+        files ? files.found : [],
+        filteredTestGroups,
+    );
 
     const allTestGroups: FilteredTestGroupOutput[] = [
         ...filteredTestGroups,
@@ -82,34 +61,83 @@ export async function runTestGroups(
 
     try {
         return allTestGroups.map((testGroup) => {
-            const allResults: PromisedResult[] =
-                testGroup.ignored == undefined
-                    ? testGroup.tests.map(
-                          (test): PromisedResult => {
-                              if (test.ignored == undefined) {
-                                  return runIndividualTest(test.input);
-                              } else {
-                                  return Promise.resolve({
-                                      caller: undefined,
-                                      input: test.input,
-                                      output: undefined,
-                                      error: undefined,
-                                      resultState: ResultState.Ignored,
-                                      success: true,
-                                  });
-                              }
-                          },
-                      )
-                    : [];
-
-            return {
-                ...testGroup,
-                allResults,
-            };
+            if (testGroup.ignoredReason == undefined) {
+                const allResults: PromisedResult[] = testGroup.tests.map(
+                    (test): PromisedResult => {
+                        if (test.ignoredReason == undefined) {
+                            return runIndividualTest(test.input);
+                        } else {
+                            return Promise.resolve({
+                                caller: undefined,
+                                input: test.input,
+                                output: undefined,
+                                error: undefined,
+                                resultState: ResultState.Ignored,
+                                success: true,
+                            });
+                        }
+                    },
+                );
+                if (allResults.length) {
+                    return {
+                        ...testGroup,
+                        allResults,
+                    };
+                } else {
+                    return {
+                        ...testGroup,
+                        description: 'Test group contained no tests',
+                        allResults: createEmptyTestGroupFailure(testGroup.caller),
+                    };
+                }
+            } else {
+                return {
+                    ...testGroup,
+                    allResults: [],
+                };
+            }
         });
     } catch (error) {
         throwInternalTestVirError(`Error encountered while running tests: ${error}`);
     }
+}
+
+function createEmptyTestGroupFailure(caller: Caller): PromisedResult[] {
+    return [
+        Promise.resolve({
+            caller: caller,
+            input: undefined,
+            output: undefined,
+            error: new EmptyTestGroupError(),
+            resultState: ResultState.Error,
+            success: false,
+        }),
+    ];
+}
+
+function createLostFileGroups(lostFiles: string[]): FilteredTestGroupOutput[] {
+    return lostFiles.map(
+        (lostFilePath): FilteredTestGroupOutput => {
+            const lostFileCaller = {...emptyCaller, filePath: lostFilePath};
+
+            return {
+                caller: lostFileCaller,
+                description: 'File not found',
+                exclude: false,
+                forceOnly: false,
+                tests: [
+                    {
+                        input: () => {
+                            throw new FileNotFoundError(`File not found: ${lostFilePath}`);
+                        },
+                        caller: lostFileCaller,
+                        ignoredReason: undefined,
+                    },
+                ],
+                ignoredReason: undefined,
+            };
+        },
+    );
 }
 
 function getUnusedFileErrorGroups(
@@ -130,7 +158,7 @@ function getUnusedFileErrorGroups(
                     input: () => {
                         throw new FileNotUsedError(`File contained no tests: ${unusedFilePath}`);
                     },
-                    ignored: undefined,
+                    ignoredReason: undefined,
                     caller: unusedFileCaller,
                 },
             ],
@@ -138,12 +166,12 @@ function getUnusedFileErrorGroups(
             exclude: false,
             forceOnly: false,
             caller: unusedFileCaller,
-            ignored: undefined,
+            ignoredReason: undefined,
         };
     });
 }
 
-type AlmostFilteredTestGroupOutput = Omit<FilteredTestGroupOutput, 'ignored'>;
+type AlmostFilteredTestGroupOutput = Omit<FilteredTestGroupOutput, 'ignoredReason'>;
 
 function setIgnored(
     input: AlmostFilteredTestGroupOutput,
@@ -160,7 +188,7 @@ function setIgnored(
 ): FilteredWrappedTest | FilteredTestGroupOutput {
     return {
         ...input,
-        ignored: reason,
+        ignoredReason: reason,
     };
 }
 
@@ -221,6 +249,8 @@ export function filterTestGroups(testGroups: TestGroupOutput[]): FilteredTestGro
                 } else {
                     nonExcludedTests.push(wrappedTest);
                 }
+            } else {
+                nonExcludedTests.push(wrappedTest);
             }
         });
 

@@ -14,6 +14,15 @@ async function main() {
         throw new Error(`Failed to test normal files.`);
     }
 
+    const noTestGroupResults = await runResolvedTestFiles(['./**/empty-test-group-test.js']);
+    if (
+        noTestGroupResults.length < 1 ||
+        countFailures(testResults) ||
+        noTestGroupResults[0]?.description !== 'Test group contained no tests'
+    ) {
+        throw new Error(`Failed to fail when a test group was empty.`);
+    }
+
     const noResults = await runResolvedTestFiles(['./**/empty-file-test.js']);
     if (!noResults.length || !countFailures(noResults)) {
         throw new Error(`empty test files should cause failures`);

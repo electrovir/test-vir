@@ -1,3 +1,4 @@
+import {EmptyTestGroupError} from '../errors/empty-test-group-error';
 import {FileNotFoundError} from '../errors/file-not-found-error';
 import {FileNotUsedError} from '../errors/file-not-used-error';
 import {callerToString} from '../get-caller-file';
@@ -59,10 +60,11 @@ export function formatSingleResult(testGroupResult: Readonly<ResolvedTestGroupRe
         ignoredTestCount > 0,
     );
 
-    // no need for any more details if the file wasn't even found
+    // no need for any more details if these errors occurred
     if (
         isErrorResult(testGroupResult, FileNotFoundError) ||
-        isErrorResult(testGroupResult, FileNotUsedError)
+        isErrorResult(testGroupResult, FileNotUsedError) ||
+        isErrorResult(testGroupResult, EmptyTestGroupError)
     ) {
         // if these errors are encountered, the test description is set to the error message already
         // so we can just log the description
@@ -70,10 +72,11 @@ export function formatSingleResult(testGroupResult: Readonly<ResolvedTestGroupRe
     }
 
     const ignoredTestString = ignoredTestCount ? `, ${ignoredTestCount} ignored` : '';
+    const testCount = testGroupResult.tests.length;
 
-    const testCount = ` ${colors.reset}${ignoredTestCount ? colors.warn : ''}(${
-        testGroupResult.allResults.length
-    } test${testGroupResult.allResults.length === 1 ? '' : 's'}${ignoredTestString})`;
+    const testCountString = ` ${colors.reset}${ignoredTestCount ? colors.warn : ''}(${
+        testGroupResult.tests.length
+    } test${testGroupResult.tests.length === 1 ? '' : 's'}${ignoredTestString})`;
 
     const resultDetails = testFilePassed
         ? ''
@@ -81,7 +84,7 @@ export function formatSingleResult(testGroupResult: Readonly<ResolvedTestGroupRe
               .map((individualResult) => formatIndividualTestResults(individualResult))
               .join('');
 
-    const result = `${testCount}${colors.info} ${isEmptyDescription ? '' : filePath}${
+    const result = `${testCountString}${colors.info} ${isEmptyDescription ? '' : filePath}${
         colors.reset
     }${resultDetails}`;
 

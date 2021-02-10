@@ -1,21 +1,24 @@
 import {Caller} from '../get-caller-file';
-import {ArrayElement, Overwrite, RequiredBy} from '../type-augments';
+import {ArrayElement, Overwrite} from '../type-augments';
 import {
     AcceptedTestInputs,
     IndividualTestResult,
     TestCommonProperties,
 } from './run-individual-test-types';
 
+export type TestGroupInputFunction = (testFunction: runTest) => Promise<void> | void;
+
+export type TestGroupInputObject = Readonly<
+    TestCommonProperties & {
+        tests: TestGroupInputFunction;
+    }
+>;
+
 /**
  * Input parameter for the testGroup method. Description and test are required. Other optional
  * properties are defined in the TestCommonProperties type.
  */
-export type TestGroupInput = RequiredBy<
-    TestCommonProperties,
-    'description' /* require that testGroup includes a description */
-> & {
-    tests: (testFunction: runTest) => Promise<void> | void;
-};
+export type TestGroupInput = TestGroupInputObject | TestGroupInputFunction;
 
 export type runTest = <ResultTypeGeneric, ErrorClassGeneric>(
     input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric>,
@@ -27,7 +30,7 @@ export enum IgnoredReason {
 }
 
 export type TestGroupOutput = Readonly<
-    Required<Omit<TestGroupInput, 'tests'>> & {
+    Required<Omit<TestGroupInputObject, 'tests'>> & {
         tests: WrappedTest[];
         caller: Caller;
     }
@@ -38,19 +41,15 @@ export type WrappedTest = {
     caller: Caller;
 };
 
+type IgnoredReasonObject = {
+    ignoredReason: IgnoredReason | undefined;
+};
+
 export type FilteredTestGroupOutput = Readonly<
-    Required<
-        Overwrite<TestGroupOutput, {tests: FilteredWrappedTest[]}> & {
-            ignored: IgnoredReason | undefined;
-        }
-    >
+    Required<Overwrite<TestGroupOutput, {tests: FilteredWrappedTest[]}> & IgnoredReasonObject>
 >;
 
-export type FilteredWrappedTest = Readonly<
-    WrappedTest & {
-        ignored: IgnoredReason | undefined;
-    }
->;
+export type FilteredWrappedTest = Readonly<WrappedTest & IgnoredReasonObject>;
 
 export type PromisedResult = Promise<ArrayElement<ResolvedTestGroupResults['allResults']>>;
 

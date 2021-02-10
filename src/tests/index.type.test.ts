@@ -173,6 +173,13 @@ inferTestResult({
     success: false,
 });
 
+// missing description is fine
+testGroup({
+    tests: (runTest) => {},
+});
+// just a function input is fine
+testGroup((runTest) => {});
+
 //
 // =================================================================================
 //
@@ -231,12 +238,6 @@ testGroup({
             },
         });
     },
-});
-
-// missing description
-// @ts-expect-error
-testGroup({
-    tests: (runTest) => {},
 });
 
 // output should match test function return type (which in this case is void)

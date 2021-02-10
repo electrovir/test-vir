@@ -16,6 +16,22 @@ It is likely that this package should only be included in devDependencies (as it
 
 # Writing Tests
 
+For the most basic of tests, just do this:
+
+```typescript
+// basic-test.ts
+import {testGroup} from 'vir-test';
+
+testGroup((runTest) =>
+    // as long as the callback doesn't throw an error it'll pass
+    runTest(() => {
+        console.log('do nothing');
+    }),
+);
+```
+
+## Writing Tests Details
+
 Tests are written within the [`testGroup`](https://github.com/electrovir/test-vir/blob/master/src/test-runners/test-group.ts#L15) function. `testGroup` accepts an object of type [`TestGroupInput`](https://github.com/electrovir/test-vir/blob/master/src/test-runners/test-group-types.ts#L10). The [`tests`](https://github.com/electrovir/test-vir/blob/master/src/test-runners/test-group-types.ts#L14) property for `TestGroupInput` accepts a function which is passed a callback by `testGroup` to run individual tests. The given callback accepts inputs of type [`TestInputObject`](https://github.com/electrovir/test-vir/blob/master/src/test-runners/run-individual-test-types.ts#L26).
 
 See the following example:
@@ -25,7 +41,6 @@ See the following example:
 import {testGroup} from 'test-vir';
 
 testGroup({
-    // description is required for every call to testGroup
     description: 'my test group',
     tests: (runTest) => {
         runTest({
@@ -45,7 +60,7 @@ Since the callback is just a callback, you can run as many tests as you like wit
 
 [See the `src/readme-examples` folder](https://github.com/electrovir/test-vir/tree/master/src/readme-examples) for examples used in this README.
 
-## `runTest` details
+## `runTest` Details
 
 ### Expectations
 
@@ -139,14 +154,14 @@ Note the following rules. These rules are enforced by the type system (if you're
 
 For more examples see [`expectations.ts`](https://github.com/electrovir/test-vir/tree/master/src/readme-examples/expectations.ts) in the repo source code.
 
-## Extra properties
+## Extra Properties
 
 The input object to both `testGroup` and `runTest` accept the extra properties [`exclude`](https://github.com/electrovir/test-vir/blob/master/src/test-runners/run-individual-test-types.ts#L11) and [`forceOnly`](https://github.com/electrovir/test-vir/blob/master/src/test-runners/run-individual-test-types.ts#L13).
 
 -   `exclude`: if set to true, this `testGroup` or `runTest` will not be included in the results. Defaults to false.
 -   `forceOnly`: if set to true, this `testGroup` or `runTest` will be the _only_ test included in the results. Defaults to false.
 
-### `exclude` examples
+### `exclude` Examples
 
 ```typescript
 // excluding-tests.ts
@@ -188,7 +203,7 @@ testGroup({
 });
 ```
 
-### `forceOnly` examples
+### `forceOnly` Examples
 
 ```typescript
 // forcing-tests.ts
@@ -241,19 +256,19 @@ Using the CLI is the recommended way of running tests.
 
 Included with this package is a CLI. This is run via the `test-vir` command.
 
-### Test a file
+### Test a File
 
 ```bash
 test-vir path-to-file.js
 ```
 
-### Test multiple files
+### Test Multiple Files
 
 ```bash
 test-vir path-to-file.js path-to-another-file.js
 ```
 
-### Test multiple files through glob syntax
+### Test Multiple Files Through Glob Syntax
 
 If your shell works will glob expansion this will work fine
 
@@ -277,7 +292,7 @@ test-vir "./**/!(*.type).test.js"
 
 All the test functions are exported so that they can be used in TS (or JS) Node.js scripts. These are used by the CLI so all output will be identical.
 
-### Testing files
+### Testing Files
 
 ```typescript
 // testing-files.ts
@@ -292,7 +307,7 @@ async function main() {
 main();
 ```
 
-#### Test files with glob
+#### Test Files With Glob
 
 If any file strings are not found a actual file names they will be expanded to all matching actual file names.
 
@@ -309,7 +324,7 @@ async function main() {
 main();
 ```
 
-#### Respond to file testing one by one
+#### Respond to File Testing One by One
 
 The exported function `runResolvedTestFiles` resolves all promises so that all the final data is present. This means that it does not resolve until _all tests are finished_. If you wish to respond to each test as it finishes (like the CLI does, printing results as each test finishes), use `runAllTestFiles` to get an array of promises:
 

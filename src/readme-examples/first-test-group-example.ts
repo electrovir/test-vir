@@ -2,7 +2,6 @@
 import {testGroup} from '..';
 
 testGroup({
-    // description is required for every call to testGroup
     description: 'my test group',
     tests: (runTest) => {
         runTest({

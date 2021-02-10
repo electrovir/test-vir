@@ -1,9 +1,18 @@
 import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
-import {TestError} from '../errors/test-error';
 import {getCaller} from '../get-caller-file';
 import {addGlobalTest} from './global';
 import {AcceptedTestInputs} from './run-individual-test-types';
-import {TestGroupInput, TestGroupOutput, WrappedTest} from './test-group-types';
+import {
+    TestGroupInput,
+    TestGroupInputFunction,
+    TestGroupInputObject,
+    TestGroupOutput,
+    WrappedTest,
+} from './test-group-types';
+
+function isTestGroupInputObject(input: TestGroupInput): input is TestGroupInputObject {
+    return typeof input !== 'function' && input.hasOwnProperty('tests');
+}
 
 /**
  * Run tests. Tests are run through the callback provided to the "tests" property on the input object.
@@ -12,10 +21,9 @@ import {TestGroupInput, TestGroupOutput, WrappedTest} from './test-group-types';
  */
 export function testGroup(input: TestGroupInput): TestGroupOutput {
     try {
-        // run time description checks
-        if (!input.description || typeof input.description !== 'string') {
-            throw new TestError(`Invalid test description: "${input.description}"`);
-        }
+        const inputTestRunner: TestGroupInputFunction = isTestGroupInputObject(input)
+            ? input.tests
+            : input;
 
         const tests: WrappedTest[] = [];
 
@@ -29,14 +37,22 @@ export function testGroup(input: TestGroupInput): TestGroupOutput {
             });
         };
 
-        input.tests(wrappedRunTest);
+        inputTestRunner(wrappedRunTest);
 
         const output: TestGroupOutput = {
             tests,
-            description: input.description,
-            exclude: input.exclude || false,
-            forceOnly: input.forceOnly || false,
             caller: getCaller(2),
+            ...(isTestGroupInputObject(input)
+                ? {
+                      description: input.description || '',
+                      exclude: input.exclude || false,
+                      forceOnly: input.forceOnly || false,
+                  }
+                : {
+                      description: '',
+                      exclude: false,
+                      forceOnly: false,
+                  }),
         };
 
         // insert into global results so the CLI can read it

@@ -1,6 +1,25 @@
 import {runAllTestFiles, TestError, testGroup} from '..';
 import {expandGlobs, recursiveRunAllTestFilesErrorMessage} from '../api/api';
 
+// the most basic of tests
+testGroup((runTest) => {
+    runTest({
+        expect: 'this should pass just fine',
+        test: () => {
+            return 'this should pass just fine';
+        },
+    });
+    runTest(() => {
+        // this one will also pass because it doesn't do anything
+    });
+});
+
+testGroup((runTest) => {
+    runTest(() => {
+        console.log('do nothing');
+    });
+});
+
 testGroup({
     description: 'api tests',
     tests: (runTest) => {
