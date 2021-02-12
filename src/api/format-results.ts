@@ -257,6 +257,9 @@ function formatInput(
     rawInput: AcceptedTestInputs<unknown, unknown> | undefined,
     indent: number,
 ): string {
+    if (typeof rawInput === 'function') {
+        return ' Function';
+    }
     // include the test property even though it can't be serialized by JSON
     const inputToPrint =
         rawInput && 'test' in rawInput ? {...rawInput, test: 'Function'} : rawInput;

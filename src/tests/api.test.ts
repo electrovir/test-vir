@@ -16,7 +16,7 @@ testGroup((runTest) => {
 
 testGroup((runTest) => {
     runTest(() => {
-        console.log('do nothing');
+        // do nothing
     });
 });
 

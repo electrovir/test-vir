@@ -42,7 +42,7 @@ testGroup({
             description: 'long test',
             test: async () => {
                 return new Promise<void>((resolve) => {
-                    setTimeout(() => resolve(), 2000);
+                    setTimeout(() => resolve(), 100);
                 });
             },
         });
