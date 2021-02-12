@@ -68,15 +68,15 @@ export function formatSingleResult(testGroupResult: Readonly<ResolvedTestGroupRe
     ) {
         // if these errors are encountered, the test description is set to the error message already
         // so we can just log the description
-        return `${description}${separator} ${filePath}\n`;
+        return `${description}${separator} ${filePath}${colors.reset}\n`;
     }
 
     const ignoredTestString = ignoredTestCount ? `, ${ignoredTestCount} ignored` : '';
     const testCount = testGroupResult.tests.length;
 
-    const testCountString = ` ${colors.reset}${ignoredTestCount ? colors.warn : ''}(${
-        testGroupResult.tests.length
-    } test${testGroupResult.tests.length === 1 ? '' : 's'}${ignoredTestString})`;
+    const testCountString = ` ${colors.reset}${
+        ignoredTestCount ? colors.warn : ''
+    }(${testCount} test${testCount === 1 ? '' : 's'}${ignoredTestString})`;
 
     const resultDetails = testFilePassed
         ? ''
