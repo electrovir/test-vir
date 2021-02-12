@@ -73,5 +73,13 @@ testGroup({
                 return files.length;
             },
         });
+
+        testGroup((runTest) =>
+            runTest({
+                description: 'undefined expectError should work fine',
+                expectError: undefined,
+                test: () => {},
+            }),
+        );
     },
 });

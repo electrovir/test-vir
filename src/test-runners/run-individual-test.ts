@@ -2,6 +2,7 @@ import * as equal from 'fast-deep-equal';
 import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
 import {TestError} from '../errors/test-error';
 import {Caller, getCaller} from '../get-caller-file';
+import {RequiredBy} from '../type-augments';
 import {ResultState} from './result-state';
 import {
     AcceptedTestInputs,
@@ -18,6 +19,16 @@ export function isTestObject<ResultTypeGeneric, ErrorClassGeneric>(
     | TestInputObject<ResultTypeGeneric, ErrorClassGeneric>
     | TestInputObject<EmptyFunctionReturn, ErrorClassGeneric> {
     return typeof input !== 'function' && input.hasOwnProperty('test');
+}
+
+function containsExpectError(
+    input: any,
+): input is RequiredBy<TestInputObject<any, any>, 'expectError'> {
+    return (
+        'expectError' in input &&
+        input.expectError &&
+        ('errorClass' in input.expectError || 'errorMessage' in input.expectError)
+    );
 }
 
 function errorsMatch<ErrorClassGeneric>(
@@ -99,10 +110,10 @@ runIndividualTest<ResultTypeGeneric, ErrorClassGeneric>(
         if (
             testThrewError ||
             /* if the test expects an error we want to compare the error even if there was none */
-            'expectError' in input
+            containsExpectError(input)
         ) {
             // at this point either the error matches the expected error or the test failed
-            if (isTestObject(input) && 'expectError' in input && input.expectError) {
+            if (isTestObject(input) && containsExpectError(input)) {
                 // check error matching
                 if (errorsMatch(testCallbackError, input.expectError)) {
                     // this is an expected error and should PASS
