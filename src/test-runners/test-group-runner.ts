@@ -6,11 +6,11 @@ import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
 import {Caller, emptyCaller} from '../get-caller-file';
 import {ResultState} from './result-state';
 import {isTestObject, runIndividualTest} from './run-individual-test';
+import {IndividualTestResult} from './run-individual-test-types';
 import {
     FilteredTestGroupOutput,
     FilteredWrappedTest,
     IgnoredReason,
-    PromisedResult,
     PromisedTestGroupResults,
     ResolvedTestGroupResults,
     TestGroupOutput,
@@ -45,7 +45,8 @@ export async function resolveTestGroupResults(
 export async function runTestGroups(
     testGroups: TestGroupOutput[],
     files?: {found: string[]; lost: string[]},
-): Promise<PromisedTestGroupResults[]> {
+    printAsTestsComplete = false,
+): Promise<ResolvedTestGroupResults[]> {
     const lostFileTestGroups = createLostFileGroups(files ? files.lost : []);
     const filteredTestGroups = filterTestGroups(testGroups);
     const unusedFileTestGroups = getUnusedFileErrorGroups(
@@ -60,58 +61,62 @@ export async function runTestGroups(
     ];
 
     try {
-        return allTestGroups.map((testGroup) => {
+        return await allTestGroups.reduce(async (allTestGroupsPromise, testGroup) => {
+            const allTestGroups = await allTestGroupsPromise;
             if (testGroup.ignoredReason == undefined) {
-                const allResults: PromisedResult[] = testGroup.tests.map(
-                    (test): PromisedResult => {
-                        if (test.ignoredReason == undefined) {
-                            return runIndividualTest(test.input);
-                        } else {
-                            return Promise.resolve({
-                                caller: undefined,
-                                input: test.input,
-                                output: undefined,
-                                error: undefined,
-                                resultState: ResultState.Ignored,
-                                success: true,
-                            });
-                        }
-                    },
-                );
+                const allResults: IndividualTestResult<
+                    unknown,
+                    unknown
+                >[] = await testGroup.tests.reduce(async (allInternalResultsPromise, test) => {
+                    const allInternalResults = await allInternalResultsPromise;
+
+                    if (test.ignoredReason == undefined) {
+                        return allInternalResults.concat(await runIndividualTest(test.input));
+                    } else {
+                        return allInternalResults.concat({
+                            caller: undefined,
+                            input: test.input,
+                            output: undefined,
+                            error: undefined,
+                            resultState: ResultState.Ignored,
+                            success: true,
+                        });
+                    }
+                }, Promise.resolve([] as IndividualTestResult<unknown, unknown>[]));
                 if (allResults.length) {
-                    return {
+                    return allTestGroups.concat({
                         ...testGroup,
                         allResults,
-                    };
+                    });
                 } else {
-                    return {
+                    return allTestGroups.concat({
                         ...testGroup,
                         description: 'Test group contained no tests',
                         allResults: createEmptyTestGroupFailure(testGroup.caller),
-                    };
+                    });
                 }
             } else {
-                return {
+                return allTestGroups.concat({
                     ...testGroup,
                     allResults: [],
-                };
+                });
             }
-        });
+        }, Promise.resolve([] as ResolvedTestGroupResults[]));
     } catch (error) {
         throwInternalTestVirError(`Error encountered while running tests: ${error}`);
     }
 }
 
-function createEmptyTestGroupFailure(caller: Caller): PromisedResult[] {
+function createEmptyTestGroupFailure(caller: Caller): IndividualTestResult<unknown, unknown>[] {
     return [
-        Promise.resolve({
+        {
             caller: caller,
             input: undefined,
             output: undefined,
             error: new EmptyTestGroupError(),
             resultState: ResultState.Error,
             success: false,
-        }),
+        },
     ];
 }
 

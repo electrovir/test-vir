@@ -66,7 +66,7 @@ testGroup({
             },
         });
         runTest({
-            expect: 3,
+            expect: 4,
             description: 'glob syntax expands',
             test: async () => {
                 const files = await expandGlobs(['./**/!(*.type).test.js']);

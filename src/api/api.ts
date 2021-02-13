@@ -6,8 +6,8 @@ import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
 import {TestError} from '../errors/test-error';
 import {colors} from '../string-output';
 import {getAndClearGlobalTests} from '../test-runners/global';
-import {resolveTestGroupResults, runTestGroups} from '../test-runners/test-group-runner';
-import {PromisedTestGroupResults, ResolvedTestGroupResults} from '../test-runners/test-group-types';
+import {runTestGroups} from '../test-runners/test-group-runner';
+import {ResolvedTestGroupResults} from '../test-runners/test-group-types';
 import {formatSingleResult, getFinalMessage, getPassedColor} from './format-results';
 
 let alreadyRunning = false;
@@ -17,11 +17,10 @@ export const recursiveRunAllTestFilesErrorMessage = `runAllTestFiles cannot be r
 export async function runResolvedTestFiles(
     inputFiles: string[],
 ): Promise<Readonly<ResolvedTestGroupResults>[]> {
-    const promisedResults = await runAllTestFiles(inputFiles);
-    return resolveTestGroupResults(promisedResults);
+    return await runAllTestFiles(inputFiles);
 }
 
-export async function runAllTestFiles(inputFiles: string[]): Promise<PromisedTestGroupResults[]> {
+export async function runAllTestFiles(inputFiles: string[]): Promise<ResolvedTestGroupResults[]> {
     // prevent this function from running inside of itself as this will mess up the results
     if (alreadyRunning) {
         throw new TestError(recursiveRunAllTestFilesErrorMessage);
@@ -109,17 +108,17 @@ async function main(): Promise<void> {
                 `Globs are also supported.`,
         );
     }
-    const promisedResults: PromisedTestGroupResults[] = await runAllTestFiles(inputs);
+    const results: ResolvedTestGroupResults[] = await runAllTestFiles(inputs);
 
     // await each promise individually so results can print as the tests finish
-    promisedResults.forEach(async (resultPromise) => {
-        console.log(formatSingleResult(await resolveTestGroupResults(resultPromise)));
+    results.forEach(async (result) => {
+        console.log(formatSingleResult(result));
     });
 
     // await all promises so we make sure they're all done before continuing
-    const resolvedResults = await resolveTestGroupResults(promisedResults);
+    // const resolvedResults = await resolveTestGroupResults(promisedResults);
 
-    const failureMessage = getFinalMessage(resolvedResults);
+    const failureMessage = getFinalMessage(results);
 
     if (failureMessage) {
         throw new TestError(failureMessage);

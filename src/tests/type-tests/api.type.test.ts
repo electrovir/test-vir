@@ -1,14 +1,13 @@
-import {runAllTestFiles, runResolvedTestFiles} from '../api/api';
-import {resolveTestGroupResults} from '../test-runners/test-group-runner';
-import {ResolvedTestGroupResults} from '../test-runners/test-group-types';
+import {runAllTestFiles, runResolvedTestFiles} from '../../api/api';
+import {ResolvedTestGroupResults} from '../../test-runners/test-group-types';
 
 // this is for type errors, this function will never actually run
 async function main() {
     // array of promises so that each can be handled once it's resolved
     const promisedOneByOneResults = await runAllTestFiles(['']);
-    const resolvedOneByOneResults: Readonly<
-        ResolvedTestGroupResults
-    >[] = await resolveTestGroupResults(promisedOneByOneResults);
+    // const resolvedOneByOneResults: Readonly<
+    //     ResolvedTestGroupResults
+    // >[] = await resolveTestGroupResults(promisedOneByOneResults);
 
     // passing in true will result in all array elements being awaited already
     const promisedAllResults: Readonly<ResolvedTestGroupResults>[] = await runResolvedTestFiles([
@@ -16,6 +15,5 @@ async function main() {
     ]);
 
     // should be an array of promises
-    // @ts-expect-error
     const wrongTypeArray: Readonly<ResolvedTestGroupResults>[] = await runAllTestFiles(['']);
 }

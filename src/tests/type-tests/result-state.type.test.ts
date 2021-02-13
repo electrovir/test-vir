@@ -1,6 +1,6 @@
-import {ResultState} from '..';
-import {FailStates, PassStates} from '../test-runners/result-state';
-import {ArrayElement} from '../type-augments';
+import {ResultState} from '../..';
+import {FailStates, PassStates} from '../../test-runners/result-state';
+import {ArrayElement} from '../../type-augments';
 
 type ResultStateObject = Record<ResultState, string>;
 type PassStateObject = Record<ArrayElement<typeof PassStates>, string>;

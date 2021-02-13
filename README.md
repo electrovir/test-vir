@@ -1,5 +1,7 @@
 # Test Vir
 
+README currently out of date, see type declaration files contained within package instead (for now).
+
 The heroic testing package.
 
 Simple, typed, no magical globals, with CLI and JS APIs.
