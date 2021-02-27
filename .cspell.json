@@ -1,0 +1,5 @@
+{
+    "version": "0.1",
+    "words": ["electrovir", "accum"],
+    "ignorePaths": ["node_modules/**", "package-lock.json", "dist/**"]
+}

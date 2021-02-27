@@ -10,7 +10,7 @@ testGroup({
         });
         runTest({
             expect: false,
-            test: () => isPassState('fdafasdfdsa'),
+            test: () => isPassState('this-is-not-a-valid-state'),
         });
         runTest({
             expect: false,

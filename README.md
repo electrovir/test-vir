@@ -1,3 +1,5 @@
+[![tests](https://github.com/electrovir/test-vir/workflows/tests/badge.svg)](https://github.com/electrovir/test-vir/actions)
+
 # Test Vir
 
 README currently out of date, see type declaration files contained within package instead (for now).
@@ -15,6 +17,112 @@ npm i -D test-vir
 ```
 
 It is likely that this package should only be included in devDependencies (as it is meant only for testing), hence the `-D` included above.
+
+# Running Tests
+
+Tests can be run through Node.js scripts or a CLI.
+
+Using the CLI is the recommended way of running tests.
+
+## CLI
+
+Included with this package is a CLI. This is run via the `test-vir` command.
+
+### Test a File
+
+```bash
+test-vir path-to-file.js
+```
+
+### Test Multiple Files
+
+```bash
+test-vir path-to-file.js path-to-another-file.js
+```
+
+### Test Multiple Files Through Glob Syntax
+
+If your shell works will glob expansion this will work fine
+
+```bash
+test-vir ./**/*.test.js
+```
+
+If you ignore files that end in `.type.test.js`, as I do, use glob negation.
+
+```bash
+test-vir ./**/!(*.type).test.js
+```
+
+If your system does _not_ support glob expansion like in the examples above, pass the glob in as a string and `test-vir` will expand it internally using [`node-glob`](https://www.npmjs.com/package/glob).
+
+```bash
+test-vir "./**/!(*.type).test.js"
+```
+
+## JS API
+
+All the test functions are exported so that they can be used in TS (or JS) Node.js scripts. These are used by the CLI so all output will be identical.
+
+### Testing Files
+
+```typescript
+// testing-files.ts
+import {runResolvedTestFiles} from 'test-vir';
+
+async function main() {
+    const myFiles = ['path-to-my-test-file.js', 'path-to-another-file.js'];
+
+    const results = await runResolvedTestFiles(myFiles);
+}
+
+main();
+```
+
+#### Test Files With Glob
+
+If any file strings are not found a actual file names they will be expanded to all matching actual file names.
+
+```typescript
+// testing-files-with-glob.ts
+import {runResolvedTestFiles} from 'test-vir';
+
+async function main() {
+    const myFiles = ['path-to-my-test-file.js', './**/*.test.js'];
+
+    const results = await runResolvedTestFiles(myFiles);
+}
+
+main();
+```
+
+#### Respond to File Testing One by One
+
+The exported function `runResolvedTestFiles` resolves all promises so that all the final data is present. This means that it does not resolve until _all tests are finished_. If you wish to respond to each test as it finishes (like the CLI does, printing results as each test finishes), use `runAllTestFiles` to get an array of promises:
+
+```typescript
+// responding-one-by-one.ts
+import {runAllTestFiles} from 'test-vir';
+
+async function main() {
+    const myFiles = ['path-to-my-test-file.js', './**/*.test.js'];
+
+    const promisedResults = await runAllTestFiles(myFiles);
+    promisedResults.forEach(async (promisedResult) => {
+        // print test success as each test finishes
+        await Promise.all(
+            promisedResult.allResults.map(async (individualResult) => {
+                console.log((await individualResult).success);
+            }),
+        );
+    });
+
+    // make sure to await all results before doing anything else to make sure the tests are all finished
+    await Promise.all(promisedResults);
+}
+
+main();
+```
 
 # Writing Tests
 
@@ -246,110 +354,4 @@ testGroup({
     },
     forceOnly: true,
 });
-```
-
-# Running Tests
-
-Tests can be run through Node.js scripts or a CLI.
-
-Using the CLI is the recommended way of running tests.
-
-## CLI
-
-Included with this package is a CLI. This is run via the `test-vir` command.
-
-### Test a File
-
-```bash
-test-vir path-to-file.js
-```
-
-### Test Multiple Files
-
-```bash
-test-vir path-to-file.js path-to-another-file.js
-```
-
-### Test Multiple Files Through Glob Syntax
-
-If your shell works will glob expansion this will work fine
-
-```bash
-test-vir ./**/*.test.js
-```
-
-If you ignore files that end in `.type.test.js`, as I do, use glob negation.
-
-```bash
-test-vir ./**/!(*.type).test.js
-```
-
-If your system does _not_ support glob expansion like in the examples above, pass the glob in as a string and `test-vir` will expand it internally using [`node-glob`](https://www.npmjs.com/package/glob).
-
-```bash
-test-vir "./**/!(*.type).test.js"
-```
-
-## JS API
-
-All the test functions are exported so that they can be used in TS (or JS) Node.js scripts. These are used by the CLI so all output will be identical.
-
-### Testing Files
-
-```typescript
-// testing-files.ts
-import {runResolvedTestFiles} from 'test-vir';
-
-async function main() {
-    const myFiles = ['path-to-my-test-file.js', 'path-to-another-file.js'];
-
-    const results = await runResolvedTestFiles(myFiles);
-}
-
-main();
-```
-
-#### Test Files With Glob
-
-If any file strings are not found a actual file names they will be expanded to all matching actual file names.
-
-```typescript
-// testing-files-with-glob.ts
-import {runResolvedTestFiles} from 'test-vir';
-
-async function main() {
-    const myFiles = ['path-to-my-test-file.js', './**/*.test.js'];
-
-    const results = await runResolvedTestFiles(myFiles);
-}
-
-main();
-```
-
-#### Respond to File Testing One by One
-
-The exported function `runResolvedTestFiles` resolves all promises so that all the final data is present. This means that it does not resolve until _all tests are finished_. If you wish to respond to each test as it finishes (like the CLI does, printing results as each test finishes), use `runAllTestFiles` to get an array of promises:
-
-```typescript
-// responding-one-by-one.ts
-import {runAllTestFiles} from 'test-vir';
-
-async function main() {
-    const myFiles = ['path-to-my-test-file.js', './**/*.test.js'];
-
-    const promisedResults = await runAllTestFiles(myFiles);
-    promisedResults.forEach(async (promisedResult) => {
-        // print test success as each test finishes
-        await Promise.all(
-            promisedResult.allResults.map(async (individualResult) => {
-                console.log((await individualResult).success);
-            }),
-        );
-    });
-
-    // make sure to await all results before doing anything else to make sure the tests are all finished
-    await Promise.all(promisedResults);
-}
-
-main();
 ```

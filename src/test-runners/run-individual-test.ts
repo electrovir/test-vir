@@ -1,7 +1,9 @@
+import {addExitCallback, removeExitCallback} from 'catch-exit';
 import * as equal from 'fast-deep-equal';
 import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
 import {TestError} from '../errors/test-error';
-import {Caller, getCaller} from '../get-caller-file';
+import {UnresolvablePromiseError} from '../errors/unresolvable-promise-error';
+import {Caller, callerToString, getCaller} from '../get-caller-file';
 import {RequiredBy} from '../type-augments';
 import {ResultState} from './result-state';
 import {
@@ -77,12 +79,24 @@ runIndividualTest<ResultTypeGeneric, ErrorClassGeneric>(
     input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric>,
     caller: Caller = getCaller(1),
 ): Promise<Readonly<IndividualTestResult<ResultTypeGeneric, ErrorClassGeneric>>> {
+    function earlyExitCallback() {
+        const testDescription =
+            isTestObject(input) && input.description ? `${input.description}\n}` : '';
+
+        const testLocation = `${testDescription}${callerToString(caller)}`;
+        throw new UnresolvablePromiseError(testLocation);
+    }
+
     let testThrewError = false;
     let testCallbackError: unknown;
     let testCallbackResult: ResultTypeGeneric | undefined;
 
     try {
+        addExitCallback(earlyExitCallback);
         const output = await (isTestObject(input) ? input.test() : input());
+        // this is used to catch tests with an unresolvable promise and at least log an error message
+        // otherwise the process just exits with no information
+
         if (output === undefined) {
             // undefined is a perfectly fine subtype of ResultTypeGeneric but a possible output type
             // is also void which causes type issues so this is basically casting void to undefined
@@ -94,6 +108,8 @@ runIndividualTest<ResultTypeGeneric, ErrorClassGeneric>(
     } catch (error) {
         testThrewError = true;
         testCallbackError = error;
+    } finally {
+        removeExitCallback(earlyExitCallback);
     }
 
     const baseReturnValue = {

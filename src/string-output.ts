@@ -12,3 +12,10 @@ export const colors = {
 export const tab = '    ';
 
 export const separator = `:`;
+
+export function createIndentString(indent: number): string {
+    return Array(indent)
+        .fill(0)
+        .map(() => `${tab}`)
+        .join('');
+}

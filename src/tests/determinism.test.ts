@@ -1,6 +1,6 @@
 import {testGroup} from '..';
 
-const globalThingie = {
+const globalObject = {
     a: 'hello there',
     b: 'you are a bold one',
 };
@@ -11,10 +11,10 @@ testGroup((runTest) => {
         description: 'async test that could be interrupted',
         test: async () => {
             const testValue = 'what now';
-            globalThingie.a = testValue;
+            globalObject.a = testValue;
             return await new Promise<boolean>((resolve) => {
                 setTimeout(() => {
-                    resolve(globalThingie.a === testValue);
+                    resolve(globalObject.a === testValue);
                 }, 200);
             });
         },
@@ -25,8 +25,8 @@ testGroup((runTest) => {
         description: 'interrupting sync test',
         test: () => {
             const testValue = 'this is the wrong value';
-            globalThingie.a = testValue;
-            return globalThingie.a === testValue;
+            globalObject.a = testValue;
+            return globalObject.a === testValue;
         },
     });
 });

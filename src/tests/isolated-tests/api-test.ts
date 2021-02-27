@@ -4,9 +4,9 @@
  */
 
 import {relative} from 'path';
-import {countFailures, runResolvedTestFiles} from '..';
-import {formatLineLeader} from '../api/format-results';
-import {colors} from '../string-output';
+import {countFailures, runResolvedTestFiles} from '../..';
+import {formatLineLeader} from '../../api/format-results';
+import {colors} from '../../string-output';
 
 async function main() {
     const testResults = await runResolvedTestFiles(['./**/!(*.type).test.js']);
@@ -28,7 +28,7 @@ async function main() {
         throw new Error(`empty test files should cause failures`);
     }
 
-    const fileNotFoundResults = await runResolvedTestFiles(['fjdklsajfkldsajfkldasjk']);
+    const fileNotFoundResults = await runResolvedTestFiles(['this-file-does-not-exist']);
     if (!fileNotFoundResults.length || !countFailures(fileNotFoundResults)) {
         throw new Error(`not found files should cause failures`);
     }

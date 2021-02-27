@@ -98,7 +98,7 @@ testGroup({
             },
             expectError: {
                 errorClass: Error,
-                errorMessage: 'yolo',
+                errorMessage: 'there is no error message',
             },
         });
         runTest({
@@ -116,7 +116,7 @@ testGroup({
             },
             description: 'test with error expect',
             test: async () => {
-                throw new Error('herp derp');
+                throw new Error();
             },
         });
         runTest({
@@ -124,7 +124,7 @@ testGroup({
                 errorClass: Error,
             },
             test: () => {
-                throw new Error('herp derp');
+                throw new Error();
             },
         });
     },
@@ -136,7 +136,7 @@ inferTestObject({
     },
     description: 'test with error expect',
     test: async () => {
-        throw new Error('herp derp');
+        throw new Error();
     },
 });
 
@@ -146,7 +146,7 @@ inferTestInput({
     },
     description: 'test with error expect',
     test: async () => {
-        throw new Error('herp derp');
+        throw new Error();
     },
 });
 
@@ -213,8 +213,8 @@ testGroup({
             expectError: {
                 // error class must be a constructor
                 // @ts-expect-error
-                errorClass: 'fdasfsa',
-                errorMessage: 'yolo',
+                errorClass: 'blah blah blah',
+                errorMessage: 'there is no error message',
             },
         });
         runTest({

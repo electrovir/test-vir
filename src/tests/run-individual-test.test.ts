@@ -34,7 +34,7 @@ testGroup({
             },
             description: 'test with error expect',
             test: async () => {
-                throw new Error('herp derp');
+                throw new Error();
             },
         });
         runTest({

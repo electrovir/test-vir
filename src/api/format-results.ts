@@ -2,7 +2,7 @@ import {EmptyTestGroupError} from '../errors/empty-test-group-error';
 import {FileNotFoundError} from '../errors/file-not-found-error';
 import {FileNotUsedError} from '../errors/file-not-used-error';
 import {callerToString} from '../get-caller-file';
-import {colors, separator, tab} from '../string-output';
+import {colors, createIndentString, separator, tab} from '../string-output';
 import {ResultState, resultStateExplanations} from '../test-runners/result-state';
 import {isTestObject} from '../test-runners/run-individual-test';
 import {AcceptedTestInputs, IndividualTestResult} from '../test-runners/run-individual-test-types';
@@ -111,9 +111,7 @@ export function formatLineLeader(
     return `${getPassedString(success, containsWarning)}${separator} ${description}`;
 }
 
-function formatIndividualTestResults(
-    individualResult: IndividualTestResult<unknown, unknown>,
-): string {
+function formatIndividualTestResults(individualResult: IndividualTestResult<any, unknown>): string {
     const testDescriptor: string =
         (individualResult.input &&
             isTestObject(individualResult.input) &&
@@ -307,11 +305,4 @@ function formatValue(input: any, indent: number): string {
     const output = (json.includes('\n') ? `\n${createIndentString(indent)}` : ' ') + json;
 
     return output;
-}
-
-function createIndentString(indent: number): string {
-    return Array(indent)
-        .fill(0)
-        .map(() => `${tab}`)
-        .join('');
 }

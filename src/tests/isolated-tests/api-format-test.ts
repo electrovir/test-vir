@@ -4,9 +4,9 @@
  */
 
 import {relative} from 'path';
-import {runResolvedTestFiles} from '..';
-import {formatAllResults, formatLineLeader} from '../api/format-results';
-import {colors} from '../string-output';
+import {runResolvedTestFiles} from '../..';
+import {formatAllResults, formatLineLeader} from '../../api/format-results';
+import {colors} from '../../string-output';
 
 async function main() {
     const failedFunctionInputResultFormatted = formatAllResults(
