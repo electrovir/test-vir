@@ -1,6 +1,6 @@
 {
     "name": "test-vir",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "description": "The heroic testing package",
     "main": "dist/index.js",
     "scripts": {
@@ -29,6 +29,7 @@
     "bin": {
         "test-vir": "dist/api/api.js"
     },
+    "types": "dist/index.d.ts",
     "homepage": "https://github.com/electrovir/test-vir#readme",
     "devDependencies": {
         "@types/node": "^14.14.31",
