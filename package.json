@@ -10,7 +10,7 @@
         "test:full": "npm run test && npm run spellcheck && npm run format:check",
         "spellcheck": "cspell \"./**/*\"",
         "format": "prettier --ignore-path .gitignore --write './{,!(dist)/**/}*.+(ts|json|html|css)'",
-        "format:check": "prettier --ignore-path .gitignore --check './{,!(dist)/**/}*.+(ts|json|html|css)'"
+        "format:check": "prettier --ignore-path .gitignore --check \"./{,!(dist)/**/}*.+(ts|json|html|css)\""
     },
     "repository": {
         "type": "git",
