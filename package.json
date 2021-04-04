@@ -7,7 +7,7 @@
         "prepublishOnly": "npm run test:full && chmod +x dist/api/api.js",
         "compile": "rm -rf dist && tsc",
         "test": "npm run compile && bash run-tests.sh",
-        "test:full": "npm run test && npm run spellcheck && npm run format:check",
+        "test:full": "npm run test && npm run spellcheck -- --no-progress && npm run format:check",
         "spellcheck": "cspell \"./**/*\"",
         "format": "npm run format:base -- --write",
         "format:base": "prettier --ignore-path .gitignore \"./{,!(dist)/**/}*.+(ts|json|html|css)\"",
