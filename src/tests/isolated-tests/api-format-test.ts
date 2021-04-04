@@ -8,15 +8,35 @@ import {runResolvedTestFiles} from '../..';
 import {formatAllResults, formatLineLeader} from '../../api/format-results';
 import {colors} from '../../string-output';
 
+function printWrongFormat(input: string): void {
+    console.error('vvv begin incorrect formatting vvv');
+    console.error(input);
+    console.error('^^^ end incorrect formatting ^^^');
+}
+
 async function main() {
     const failedFunctionInputResultFormatted = formatAllResults(
         await runResolvedTestFiles(['./**/failed-function-input-test.js']),
     );
     if (!failedFunctionInputResultFormatted.includes(`error${colors.reset}: Error`)) {
+        printWrongFormat(failedFunctionInputResultFormatted);
         throw new Error(`failedFunctionInputString test did not result in an error`);
     }
     if (failedFunctionInputResultFormatted.includes(`input${colors.reset}: undefined`)) {
+        printWrongFormat(failedFunctionInputResultFormatted);
         throw new Error(`failedFunctionInputString has undefined input with a function input`);
+    }
+
+    const ignoredTestsResultsFormatted = formatAllResults(
+        await runResolvedTestFiles(['./**/force-only-input*.js']),
+        true,
+    );
+    const ignoredCount = (ignoredTestsResultsFormatted.match(/ignored\)/g) || []).length;
+    if (ignoredCount !== 8) {
+        printWrongFormat(ignoredTestsResultsFormatted);
+        throw new Error(
+            `ignored test groups should be marked as ignored, only saw ${ignoredCount} ignored counts.`,
+        );
     }
 }
 

@@ -60,6 +60,10 @@ If your system does _not_ support glob expansion like in the examples above, pas
 test-vir "./**/!(*.type).test.js"
 ```
 
+### Debug mode
+
+If you want to inspect the results of your tests more, you can add the `--debug` flag to have more data printed.
+
 ## JS API
 
 All the test functions are exported so that they can be used in TS (or JS) Node.js scripts. These are used by the CLI so all output will be identical.
@@ -112,7 +116,7 @@ async function main() {
         // print test success as each test finishes
         await Promise.all(
             promisedResult.allResults.map(async (individualResult) => {
-                console.log((await individualResult).success);
+                console.log(individualResult.success);
             }),
         );
     });

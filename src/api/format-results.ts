@@ -2,7 +2,7 @@ import {EmptyTestGroupError} from '../errors/empty-test-group-error';
 import {FileNotFoundError} from '../errors/file-not-found-error';
 import {FileNotUsedError} from '../errors/file-not-used-error';
 import {callerToString} from '../get-caller-file';
-import {colors, createIndentString, separator, tab} from '../string-output';
+import {colors, createIndentString, separator} from '../string-output';
 import {ResultState, resultStateExplanations} from '../test-runners/result-state';
 import {isTestObject} from '../test-runners/run-individual-test';
 import {AcceptedTestInputs, IndividualTestResult} from '../test-runners/run-individual-test-types';
@@ -29,9 +29,12 @@ export function getFinalMessage(testGroupResults: Readonly<ResolvedTestGroupResu
         : '';
 }
 
-export function formatAllResults(testGroupResults: Readonly<ResolvedTestGroupResults>[]): string {
+export function formatAllResults(
+    testGroupResults: Readonly<ResolvedTestGroupResults>[],
+    debug = false,
+): string {
     const formattedOutput = testGroupResults
-        .map((testGroup) => formatSingleResult(testGroup))
+        .map((testGroup) => formatSingleResult(testGroup, debug))
         .join('\n');
     return `${formattedOutput}\n${getFinalMessage(testGroupResults)}`;
 }
@@ -40,21 +43,27 @@ function isErrorResult(input: Readonly<ResolvedTestGroupResults>, errorClass: ne
     return input.allResults.length === 1 && input.allResults[0]?.error instanceof errorClass;
 }
 
-export function formatSingleResult(testGroupResult: Readonly<ResolvedTestGroupResults>): string {
+export function formatSingleResult(
+    testGroupResult: Readonly<ResolvedTestGroupResults>,
+    debug = false,
+): string {
     const testFilePassed: boolean = countFailures([testGroupResult]) === 0;
-    const ignoredTestCount: number = testGroupResult.allResults.reduce((accum, result) => {
-        if (result.resultState === ResultState.Ignored) {
-            return accum + 1;
-        }
-        return accum;
-    }, 0);
+    const ignoredTestCount: number =
+        testGroupResult.ignoredReason == undefined
+            ? testGroupResult.allResults.reduce((accum, result) => {
+                  if (result.resultState === ResultState.Ignored) {
+                      return accum + 1;
+                  }
+                  return accum;
+              }, 0)
+            : testGroupResult.tests.length;
 
     const isEmptyDescription = !testGroupResult.description;
     const filePath = callerToString(testGroupResult.caller, {
         line: !isErrorResult(testGroupResult, FileNotFoundError),
     });
 
-    const description = formatLineLeader(
+    const status = formatLineLeader(
         testFilePassed,
         isEmptyDescription ? filePath : testGroupResult.description,
         ignoredTestCount > 0,
@@ -68,7 +77,7 @@ export function formatSingleResult(testGroupResult: Readonly<ResolvedTestGroupRe
     ) {
         // if these errors are encountered, the test description is set to the error message already
         // so we can just log the description
-        return `${description}${separator} ${filePath}${colors.reset}\n`;
+        return `${status}${separator} ${filePath}${colors.reset}\n`;
     }
 
     const ignoredTestString = ignoredTestCount ? `, ${ignoredTestCount} ignored` : '';
@@ -78,19 +87,21 @@ export function formatSingleResult(testGroupResult: Readonly<ResolvedTestGroupRe
         ignoredTestCount ? colors.warn : ''
     }(${testCount} test${testCount === 1 ? '' : 's'}${ignoredTestString})`;
 
-    const resultDetails = testFilePassed
-        ? ''
-        : testGroupResult.allResults
-              .map((individualResult) => formatIndividualTestResults(individualResult))
-              .join('');
+    const debugDetails = debug ? formatDebugOutput(testGroupResult, 1) : '';
+    const resultDetails =
+        testFilePassed && !debug
+            ? ''
+            : testGroupResult.allResults
+                  .map((individualResult) => formatIndividualTestResults(individualResult, debug))
+                  .join('');
 
     const result = `${testCountString}${colors.info} ${isEmptyDescription ? '' : filePath}${
         colors.reset
-    }${resultDetails}`;
+    }${debugDetails}${resultDetails}`;
 
     const whiteSpace = testFilePassed ? '' : '\n';
 
-    return `${whiteSpace}${description}${result}${whiteSpace}`;
+    return `${whiteSpace}${status}${result}${whiteSpace}`;
 }
 
 export function getPassedString(passed: boolean, containsWarning = false): string {
@@ -111,7 +122,10 @@ export function formatLineLeader(
     return `${getPassedString(success, containsWarning)}${separator} ${description}`;
 }
 
-function formatIndividualTestResults(individualResult: IndividualTestResult<any, unknown>): string {
+function formatIndividualTestResults(
+    individualResult: IndividualTestResult<any, unknown>,
+    debug = false,
+): string {
     const testDescriptor: string =
         (individualResult.input &&
             isTestObject(individualResult.input) &&
@@ -126,9 +140,11 @@ function formatIndividualTestResults(individualResult: IndividualTestResult<any,
         individualResult.resultState === ResultState.Ignored,
     )}${colors.reset}${separator} ${resultStateExplanations[individualResult.resultState]}`;
 
-    const failureReason = figureOutFailureReason(individualResult, 2).split('\n').join(`\n${tab}`);
+    const failureReason = figureOutFailureReason(individualResult, 2)
+        .split('\n')
+        .join(`\n${createIndentString(1)}`);
     const inputString = individualResult.input
-        ? `\n${tab}${tab}${colors.info}input${colors.reset}${separator}${formatInput(
+        ? `\n${createIndentString(2)}${colors.info}input${colors.reset}${separator}${formatInput(
               individualResult.input,
               3,
           )}`
@@ -136,9 +152,12 @@ function formatIndividualTestResults(individualResult: IndividualTestResult<any,
 
     const failureExplanation = individualResult.success
         ? ''
-        : `\n${tab}${tab}${failureReason}${inputString}`;
+        : `\n${createIndentString(2)}${failureReason}${inputString}`;
 
-    const testResultOutput = `\n${tab}${description}${failureExplanation}`;
+    const debugOutput = debug ? formatDebugOutput(individualResult, 2) : '';
+    const testResultOutput = `\n${createIndentString(
+        1,
+    )}${description}${failureExplanation}${debugOutput}`;
 
     return testResultOutput;
 }
@@ -157,7 +176,11 @@ function figureOutFailureReason(
             if (result.input && isTestObject(result.input)) {
                 const expectObjectString = formatValue(result.input.expect, indent);
                 const outputObjectString = formatValue(result.output, indent);
-                return `${colors.info}expected${colors.reset}${separator}${expectObjectString}\n${tab}${colors.fail}but got${colors.reset}${separator}${outputObjectString}`;
+                return `${colors.info}expected${
+                    colors.reset
+                }${separator}${expectObjectString}\n${createIndentString(1)}${colors.fail}but got${
+                    colors.reset
+                }${separator}${outputObjectString}`;
             } else {
                 return 'No expectation was assigned.';
             }
@@ -219,7 +242,11 @@ function figureOutFailureReason(
                         ? 'but no error was thrown'
                         : `but got${colors.reset}${separator}${outputValueString}`;
 
-                return `${colors.info}expected thrown error${colors.reset}${separator}${expectObjectString}\n${tab}${colors.fail}${outputObjectString}`;
+                return `${colors.info}expected thrown error${
+                    colors.reset
+                }${separator}${expectObjectString}\n${createIndentString(1)}${
+                    colors.fail
+                }${outputObjectString}`;
             } else {
                 return 'No error expectation was assigned.';
             }
@@ -291,18 +318,26 @@ function formatInput(
 }
 
 function formatJson(input: any, indent: number): string {
-    const json = JSON.stringify(input, null, `${tab}`);
+    const json = JSON.stringify(input, null, createIndentString(1));
 
     // this String cast handles the case where input is undefined, which results in JSON.stringify
     // outputting undefined instead of the string "undefined"
-    return (typeof json === 'string' ? json : String(json))
-        .split('\n')
-        .join(`\n${createIndentString(indent)}`);
+    return indentNewLines(typeof json === 'string' ? json : String(json), indent);
+}
+
+function formatDebugOutput(value: any, indent: number): string {
+    return formatValue(`${colors.info}debug${colors.reset}:${formatValue(value, 1)}`, indent);
+}
+
+function indentNewLines(input: string, indent: number) {
+    return input.split('\n').join(`\n${createIndentString(indent)}`);
 }
 
 function formatValue(input: any, indent: number): string {
-    const json: string = typeof input === 'string' ? input : formatJson(input, indent);
-    const output = (json.includes('\n') ? `\n${createIndentString(indent)}` : ' ') + json;
+    const formattedInput: string =
+        typeof input === 'string' ? indentNewLines(input, indent) : formatJson(input, indent);
+    const output =
+        (formattedInput.includes('\n') ? `\n${createIndentString(indent)}` : ' ') + formattedInput;
 
     return output;
 }

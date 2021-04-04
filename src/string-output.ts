@@ -9,7 +9,7 @@ export const colors = {
     bold: styles.bold.open,
 } as const;
 
-export const tab = '    ';
+const tab = '    ';
 
 export const separator = `:`;
 

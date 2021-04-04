@@ -12,6 +12,8 @@ import {formatSingleResult, getFinalMessage, getPassedColor} from './format-resu
 
 let alreadyRunning = false;
 
+let debugMode = false;
+
 export const recursiveRunAllTestFilesErrorMessage = `runAllTestFiles cannot be running inside of itself!`;
 
 export async function runResolvedTestFiles(
@@ -100,8 +102,37 @@ export async function expandGlobs(inputs: string[]): Promise<string[]> {
     return Array.from(foundFiles).concat(Array.from(lostFiles));
 }
 
+const supportedFlags = ['--debug'];
+
+function setFlags(flags: string[]) {
+    if (flags.includes('--debug')) {
+        debugMode = true;
+    }
+
+    const unsupportedFlags = flags.filter((flag) => !supportedFlags.includes(flag));
+
+    if (unsupportedFlags.length) {
+        throw new Error(`unsupported flags: ${unsupportedFlags.join(', ')}`);
+    }
+}
+
 async function main(): Promise<void> {
-    const inputs = process.argv.slice(2);
+    const {inputs, flags} = process.argv.slice(2).reduce(
+        (accum, currentString) => {
+            if (currentString.startsWith('--')) {
+                accum.flags.push(currentString);
+            } else {
+                accum.inputs.push(currentString);
+            }
+            return accum;
+        },
+        {inputs: [] as string[], flags: [] as string[]},
+    );
+
+    if (flags.length) {
+        setFlags(flags);
+    }
+
     if (!inputs.length) {
         throw new TestError(
             `No files to test. Usage: test-vir <file-path-1>.js [, ...otherFilePaths].\n` +
@@ -112,7 +143,7 @@ async function main(): Promise<void> {
 
     // await each promise individually so results can print as the tests finish
     results.forEach(async (result) => {
-        console.log(formatSingleResult(result));
+        console.log(formatSingleResult(result, debugMode));
     });
 
     // await all promises so we make sure they're all done before continuing

@@ -2,6 +2,7 @@ import {runAllTestFiles, TestError, testGroup} from '..';
 import {expandGlobs, recursiveRunAllTestFilesErrorMessage} from '../api/api';
 
 // the most basic of tests
+
 testGroup((runTest) => {
     runTest({
         expect: 'this should pass just fine',
@@ -11,6 +12,14 @@ testGroup((runTest) => {
     });
     runTest(() => {
         // this one will also pass because it doesn't do anything
+    });
+});
+
+// testGroup should work with an async input
+testGroup(async (runTest) => {
+    await Promise.resolve();
+    runTest(async () => {
+        await Promise.resolve();
     });
 });
 
