@@ -2,10 +2,13 @@
 import {existsSync} from 'fs';
 import {promise as glob} from 'glob-promise';
 import {resolve} from 'path';
+import {ImportError} from '../errors/import-error';
 import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
 import {TestError} from '../errors/test-error';
+import {Caller, emptyCaller} from '../get-caller-file';
 import {colors} from '../string-output';
 import {getAndClearGlobalTests} from '../test-runners/global';
+import {ResultState} from '../test-runners/result-state';
 import {runTestGroups} from '../test-runners/test-group-runner';
 import {ResolvedTestGroupResults} from '../test-runners/test-group-types';
 import {formatSingleResult, getFinalMessage, getPassedColor} from './format-results';
@@ -33,8 +36,6 @@ export async function runAllTestFiles(inputFiles: string[]): Promise<ResolvedTes
     try {
         const files = await expandGlobs(inputFiles);
 
-        const importPromises: Promise<unknown>[] = [];
-
         const {foundFiles, lostFiles} = files.reduce(
             (accum: {foundFiles: string[]; lostFiles: string[]}, currentFile) => {
                 if (existsSync(currentFile)) {
@@ -47,26 +48,66 @@ export async function runAllTestFiles(inputFiles: string[]): Promise<ResolvedTes
             {foundFiles: [], lostFiles: []},
         );
 
-        foundFiles.map((filePath) => {
-            importPromises.push(import(resolve(filePath)));
+        const importPromises: Promise<unknown>[] = foundFiles.map((filePath) => {
+            return new Promise<unknown>(async (promiseResolve) => {
+                try {
+                    const importResult = await import(resolve(filePath));
+                    promiseResolve(importResult);
+                } catch (error) {
+                    promiseResolve(new ImportError(error, filePath));
+                }
+            });
         });
 
         // await all the imports
-        await Promise.all(importPromises);
+        const importFailures = (await Promise.all(importPromises)).filter(
+            (result): result is ImportError => result instanceof ImportError,
+        );
+        const failedImportFiles = importFailures.map((failure) => failure.filePath);
 
         const globalTestGroups = getAndClearGlobalTests();
 
         const resultPromises = await runTestGroups(globalTestGroups, {
-            found: foundFiles,
+            found: foundFiles.filter((file) => !failedImportFiles.includes(file)),
             lost: lostFiles,
         });
 
-        return resultPromises;
+        const failedImportResults = generatedFailedImportResults(importFailures);
+
+        return resultPromises.concat(failedImportResults);
     } catch (error) {
         throwInternalTestVirError(error);
     } finally {
         alreadyRunning = false;
     }
+}
+
+function generatedFailedImportResults(failures: ImportError[]): ResolvedTestGroupResults[] {
+    return failures.map(
+        (failure): ResolvedTestGroupResults => {
+            const errorCaller: Caller = {...emptyCaller, filePath: failure.filePath};
+            const result: ResolvedTestGroupResults = {
+                allResults: [
+                    {
+                        caller: errorCaller,
+                        error: failure.error,
+                        input: undefined,
+                        output: undefined,
+                        resultState: ResultState.Error,
+                        success: false,
+                    },
+                ],
+                caller: errorCaller,
+                description: `${failure.filePath}`,
+                exclude: false,
+                forceOnly: false,
+                ignoredReason: undefined,
+                tests: [],
+            };
+
+            return result;
+        },
+    );
 }
 
 /**

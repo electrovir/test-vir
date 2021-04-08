@@ -81,13 +81,13 @@ testGroup({
             // this test has no return value so it cannot be expected to return anything
             // this test will pass if it simply throws no errors
             test: () => {
-                console.log('nothing to see here');
+                // nothing to see here
             },
         });
 
         // the above test can be written in this way and accomplish the same thing
         runTest(() => {
-            console.log('nothing to see here');
+            // nothing to see here
         });
     },
 });

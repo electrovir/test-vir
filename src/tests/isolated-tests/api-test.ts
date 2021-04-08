@@ -58,6 +58,22 @@ async function main() {
     if (!notIgnoredRunTests[0]!.success) {
         throw new Error(`forced test should have passed`);
     }
+
+    const invalidImportResults = await runResolvedTestFiles(['./**/invalid-import-input.js']);
+    if (invalidImportResults.length !== 1) {
+        throw new Error(`invalid-import-input generated more than one test group`);
+    }
+    if (invalidImportResults[0]!.allResults.length !== 1) {
+        throw new Error("invalid-import-input's test group generated more than one result");
+    }
+    if (
+        !(invalidImportResults[0]!.allResults[0]!.error instanceof Error) ||
+        !invalidImportResults[0]!.allResults[0]!.error.message.toLowerCase().includes(
+            'cannot find module',
+        )
+    ) {
+        throw new Error('invalid-import-inputs did not fail as it should have');
+    }
 }
 
 function getMessage(success: boolean): string {

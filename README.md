@@ -139,7 +139,7 @@ import {testGroup} from 'vir-test';
 testGroup((runTest) =>
     // as long as the callback doesn't throw an error it'll pass
     runTest(() => {
-        console.log('do nothing');
+        // do nothing
     }),
 );
 ```
