@@ -17,7 +17,7 @@ export type ErrorMessageExpectation = string | RegExp;
 
 export type ErrorExpectation<ErrorClassGeneric> =
     | {
-          errorClass: new () => ErrorClassGeneric;
+          errorClass: new (...args: any[]) => ErrorClassGeneric;
       }
     | {
           errorMessage: ErrorMessageExpectation;

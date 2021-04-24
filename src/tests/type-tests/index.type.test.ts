@@ -173,6 +173,42 @@ inferTestResult({
     success: false,
 });
 
+class ErrorWithArgs extends Error {
+    constructor(message: string) {
+        super(message);
+    }
+}
+
+testGroup((runTest) => {
+    runTest({
+        test: () => {
+            throw new ErrorWithArgs('hello there');
+        },
+    });
+});
+
+testGroup((runTest) => {
+    runTest({
+        expectError: {
+            errorClass: ErrorWithArgs,
+        },
+        test: () => {
+            throw new ErrorWithArgs('hello there');
+        },
+    });
+});
+
+testGroup((runTest) => {
+    runTest({
+        expectError: {
+            errorClass: Error,
+        },
+        test: () => {
+            throw new Error('hello there');
+        },
+    });
+});
+
 // missing description is fine
 testGroup({
     tests: (runTest) => {},
