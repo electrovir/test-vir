@@ -38,9 +38,11 @@ function errorsMatch<ErrorClassGeneric>(
     comparison: ErrorExpectation<ErrorClassGeneric>,
 ): boolean {
     try {
+        let errorClassMatch = true;
         if ('errorClass' in comparison) {
-            return error instanceof comparison.errorClass;
+            errorClassMatch = error instanceof comparison.errorClass;
         }
+        let errorMessageMatch = true;
         if (
             'errorMessage' in comparison &&
             error &&
@@ -51,11 +53,13 @@ function errorsMatch<ErrorClassGeneric>(
 
             if (typeof comparison.errorMessage === 'string') {
                 // if this as assumption is wrong then an error will be thrown will is caught later
-                return message === comparison.errorMessage;
+                errorMessageMatch = message === comparison.errorMessage;
             } else {
-                return !!(comparison.errorMessage.exec(message) || []).length;
+                errorMessageMatch = !!(comparison.errorMessage.exec(message) || []).length;
             }
         }
+
+        return errorClassMatch && errorMessageMatch;
     } catch (checkError) {
         return false;
     }

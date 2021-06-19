@@ -61,7 +61,9 @@ async function main() {
 
     const invalidImportResults = await runResolvedTestFiles(['./**/invalid-import-input.js']);
     if (invalidImportResults.length !== 1) {
-        throw new Error(`invalid-import-input generated more than one test group`);
+        throw new Error(
+            `invalid-import-input did not generate a single test group, it generated ${invalidImportResults.length}`,
+        );
     }
     if (invalidImportResults[0]!.allResults.length !== 1) {
         throw new Error("invalid-import-input's test group generated more than one result");
@@ -73,6 +75,18 @@ async function main() {
         )
     ) {
         throw new Error('invalid-import-inputs did not fail as it should have');
+    }
+
+    const invalidErrorResults = await runResolvedTestFiles([
+        './**/error-class-and-message-input.js',
+    ]);
+    if (invalidErrorResults.length !== 1) {
+        throw new Error(
+            `invalid-import-input did not generate a single test group, it generated ${invalidErrorResults.length}`,
+        );
+    }
+    if (invalidErrorResults[0]!.allResults[0]!.success) {
+        throw new Error(`Test with message and class expectation did not properly fail`);
     }
 }
 

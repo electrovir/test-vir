@@ -1,6 +1,6 @@
 {
     "name": "test-vir",
-    "version": "0.0.12",
+    "version": "0.0.13",
     "description": "The heroic testing package",
     "main": "dist/index.js",
     "scripts": {

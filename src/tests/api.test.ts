@@ -48,22 +48,22 @@ testGroup({
             },
         });
         runTest({
-            expect: 1,
-            description: "non glob syntax doesn't match anything",
+            expect: -1,
+            description: 'excluded test with failure should not fail the tests',
             test: async () => {
                 const files = await expandGlobs(['.test.ts']);
                 return files.length;
             },
+            // intentionally excluded, that is part of the test
             exclude: true,
         });
         runTest({
             expect: 1,
             description: 'should exclude test even if it throws error',
             test: async () => {
-                const files = await expandGlobs(['.test.ts']);
                 throw new Error();
-                return files.length;
             },
+            // intentionally excluded, that is part of the test
             exclude: true,
         });
         runTest({
