@@ -42,7 +42,7 @@ export function getCaller(howFarBack: number): Caller {
     Error.prepareStackTrace = (_error, stack) => {
         return stack;
     };
-    const stack = (error.stack as unknown) as NodeJS.CallSite[] | undefined;
+    const stack = error.stack as unknown as NodeJS.CallSite[] | undefined;
     Error.prepareStackTrace = originalFunc;
 
     const fileCallSite = stack?.[howFarBack];

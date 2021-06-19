@@ -306,7 +306,7 @@ inferTestResult({
     input: {
         test: () => 5,
         // @ts-expect-error
-        expect: 'fdafda',
+        expect: 'random-string-here',
     },
     caller: emptyCaller,
     output: undefined,
@@ -320,7 +320,7 @@ inferTestResult({
     input: {
         test: () => 5,
         // @ts-expect-error
-        expect: 'fdafda',
+        expect: 'random-string-here',
     },
     caller: emptyCaller,
     output: undefined,

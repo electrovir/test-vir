@@ -64,25 +64,23 @@ export async function runTestGroups(
         return await allTestGroups.reduce(async (allTestGroupsPromise, testGroup) => {
             const allTestGroups = await allTestGroupsPromise;
             if (testGroup.ignoredReason == undefined) {
-                const allResults: IndividualTestResult<
-                    unknown,
-                    unknown
-                >[] = await testGroup.tests.reduce(async (allInternalResultsPromise, test) => {
-                    const allInternalResults = await allInternalResultsPromise;
+                const allResults: IndividualTestResult<unknown, unknown>[] =
+                    await testGroup.tests.reduce(async (allInternalResultsPromise, test) => {
+                        const allInternalResults = await allInternalResultsPromise;
 
-                    if (test.ignoredReason == undefined) {
-                        return allInternalResults.concat(await runIndividualTest(test.input));
-                    } else {
-                        return allInternalResults.concat({
-                            caller: undefined,
-                            input: test.input,
-                            output: undefined,
-                            error: undefined,
-                            resultState: ResultState.Ignored,
-                            success: true,
-                        });
-                    }
-                }, Promise.resolve([] as IndividualTestResult<unknown, unknown>[]));
+                        if (test.ignoredReason == undefined) {
+                            return allInternalResults.concat(await runIndividualTest(test.input));
+                        } else {
+                            return allInternalResults.concat({
+                                caller: undefined,
+                                input: test.input,
+                                output: undefined,
+                                error: undefined,
+                                resultState: ResultState.Ignored,
+                                success: true,
+                            });
+                        }
+                    }, Promise.resolve([] as IndividualTestResult<unknown, unknown>[]));
                 if (allResults.length) {
                     return allTestGroups.concat({
                         ...testGroup,
@@ -121,28 +119,26 @@ function createEmptyTestGroupFailure(caller: Caller): IndividualTestResult<unkno
 }
 
 function createLostFileGroups(lostFiles: string[]): FilteredTestGroupOutput[] {
-    return lostFiles.map(
-        (lostFilePath): FilteredTestGroupOutput => {
-            const lostFileCaller = {...emptyCaller, filePath: lostFilePath};
+    return lostFiles.map((lostFilePath): FilteredTestGroupOutput => {
+        const lostFileCaller = {...emptyCaller, filePath: lostFilePath};
 
-            return {
-                caller: lostFileCaller,
-                description: 'File not found',
-                exclude: false,
-                forceOnly: false,
-                tests: [
-                    {
-                        input: () => {
-                            throw new FileNotFoundError(`File not found: ${lostFilePath}`);
-                        },
-                        caller: lostFileCaller,
-                        ignoredReason: undefined,
+        return {
+            caller: lostFileCaller,
+            description: 'File not found',
+            exclude: false,
+            forceOnly: false,
+            tests: [
+                {
+                    input: () => {
+                        throw new FileNotFoundError(`File not found: ${lostFilePath}`);
                     },
-                ],
-                ignoredReason: undefined,
-            };
-        },
-    );
+                    caller: lostFileCaller,
+                    ignoredReason: undefined,
+                },
+            ],
+            ignoredReason: undefined,
+        };
+    });
 }
 
 function getUnusedFileErrorGroups(
