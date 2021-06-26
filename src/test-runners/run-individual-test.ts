@@ -43,19 +43,18 @@ function errorsMatch<ErrorClassGeneric>(
             errorClassMatch = error instanceof comparison.errorClass;
         }
         let errorMessageMatch = true;
-        if (
-            'errorMessage' in comparison &&
-            error &&
-            typeof error === 'object' &&
-            'message' in error
-        ) {
-            const message: string = String((error as {message: unknown}).message);
+        if ('errorMessage' in comparison) {
+            if (error && typeof error === 'object' && 'message' in error) {
+                const message: string = String((error as {message: unknown}).message);
 
-            if (typeof comparison.errorMessage === 'string') {
-                // if this as assumption is wrong then an error will be thrown will is caught later
-                errorMessageMatch = message === comparison.errorMessage;
+                if (typeof comparison.errorMessage === 'string') {
+                    // if this as assumption is wrong then an error will be thrown will is caught later
+                    errorMessageMatch = message === comparison.errorMessage;
+                } else {
+                    errorMessageMatch = !!(comparison.errorMessage.exec(message) || []).length;
+                }
             } else {
-                errorMessageMatch = !!(comparison.errorMessage.exec(message) || []).length;
+                errorMessageMatch = false;
             }
         }
 

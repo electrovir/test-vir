@@ -88,6 +88,18 @@ async function main() {
     if (invalidErrorResults[0]!.allResults[0]!.success) {
         throw new Error(`Test with message and class expectation did not properly fail`);
     }
+
+    const expectErrorWithNoErrorThrown = await runResolvedTestFiles([
+        './**/failed-with-regex-expect-error-message.js',
+    ]);
+    if (expectErrorWithNoErrorThrown.length !== 1) {
+        throw new Error(
+            `failed-with-regex-expect-error-message did not generate a single test group, it generated ${expectErrorWithNoErrorThrown.length}`,
+        );
+    }
+    if (expectErrorWithNoErrorThrown[0]!.allResults[0]!.success) {
+        throw new Error(`Test with message and class expectation did not properly fail`);
+    }
 }
 
 function getMessage(success: boolean): string {
