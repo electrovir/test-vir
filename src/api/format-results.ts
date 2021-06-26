@@ -274,8 +274,8 @@ function replaceErrorClassString(input: string, className?: string): string {
  * Remove the quotes around the error class name so it can be seen that it looks like a class name
  * instead of a string
  */
-function replaceFunctionConstructorString(input: string): string {
-    return input.replace(`"Function"`, `Function`);
+function replaceConstructorStrings(input: string): string {
+    return input.replace(`"Function"`, `Function`).replace(/ "(\/.*\/)"/g, ' $1');
 }
 
 function formatInput(
@@ -285,9 +285,26 @@ function formatInput(
     if (typeof rawInput === 'function') {
         return ' Function';
     }
-    // include the test property even though it can't be serialized by JSON
-    const inputToPrint =
+
+    // include the test property as "Function" because a function can't be serialized into JSON
+    const inputWithFormattedTestFunction =
         rawInput && 'test' in rawInput ? {...rawInput, test: 'Function'} : rawInput;
+
+    // format error message if it's a regex
+    const inputToPrint =
+        inputWithFormattedTestFunction &&
+        'expectError' in inputWithFormattedTestFunction &&
+        inputWithFormattedTestFunction.expectError &&
+        'errorMessage' in inputWithFormattedTestFunction.expectError &&
+        inputWithFormattedTestFunction.expectError.errorMessage instanceof RegExp
+            ? {
+                  ...inputWithFormattedTestFunction,
+                  expectError: {
+                      ...inputWithFormattedTestFunction.expectError,
+                      errorMessage: String(inputWithFormattedTestFunction.expectError.errorMessage),
+                  },
+              }
+            : inputWithFormattedTestFunction;
 
     if (
         inputToPrint &&
@@ -295,7 +312,7 @@ function formatInput(
         inputToPrint.expectError &&
         'errorClass' in inputToPrint.expectError
     ) {
-        return replaceFunctionConstructorString(
+        return replaceConstructorStrings(
             replaceErrorClassString(
                 formatValue(
                     {
@@ -313,7 +330,7 @@ function formatInput(
             ),
         );
     } else {
-        return replaceFunctionConstructorString(formatValue(inputToPrint, indent));
+        return replaceConstructorStrings(formatValue(inputToPrint, indent));
     }
 }
 
@@ -325,8 +342,19 @@ function formatJson(input: any, indent: number): string {
     return indentNewLines(typeof json === 'string' ? json : String(json), indent);
 }
 
-function formatDebugOutput(value: any, indent: number): string {
-    return formatValue(`${colors.info}debug${colors.reset}:${formatValue(value, 1)}`, indent);
+function formatDebugOutput(
+    value: Readonly<ResolvedTestGroupResults> | IndividualTestResult<any, unknown>,
+    indent: number,
+): string {
+    const replaceString = 'REPLACE ME HERE PLEASE WITH THE PROPER INPUT THING';
+    const formattedValue =
+        'input' in value && value.input
+            ? formatValue({...value, input: replaceString}, 1).replace(
+                  `"${replaceString}"`,
+                  formatInput(value.input, 2).replace(/^\n\s*/, ''),
+              )
+            : formatValue(value, 1);
+    return formatValue(`${colors.info}debug${colors.reset}:${formattedValue}`, indent);
 }
 
 function indentNewLines(input: string, indent: number) {

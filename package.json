@@ -1,6 +1,6 @@
 {
     "name": "test-vir",
-    "version": "0.0.13",
+    "version": "0.0.14",
     "description": "The heroic testing package",
     "main": "dist/index.js",
     "scripts": {
@@ -20,9 +20,11 @@
     "keywords": [
         "automated",
         "test",
+        "test-vir",
         "testing",
         "tests",
-        "vir"
+        "vir",
+        "electrovir"
     ],
     "author": "electrovir (github.com/electrovir)",
     "license": "MIT",

@@ -8,3 +8,4 @@ prettierignore
 tsconfig.json
 run-tests.sh
 .cspell.json
+.gitattributes

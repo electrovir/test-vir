@@ -38,6 +38,15 @@ async function main() {
             `ignored test groups should be marked as ignored, only saw ${ignoredCount} ignored counts.`,
         );
     }
+
+    const regexExpectErrorOutput = formatAllResults(
+        await runResolvedTestFiles(['./**/failed-with-regex-expect-error-message.js']),
+        true,
+    );
+    if (!regexExpectErrorOutput.includes('"errorMessage": /test regex/')) {
+        printWrongFormat(regexExpectErrorOutput);
+        throw new Error(`regex expect error was not formatted correctly`);
+    }
 }
 
 function getMessage(success: boolean): string {
