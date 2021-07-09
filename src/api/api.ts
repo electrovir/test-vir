@@ -185,9 +185,6 @@ async function main(): Promise<void> {
         console.log(formatSingleResult(result, debugMode));
     });
 
-    // await all promises so we make sure they're all done before continuing
-    // const resolvedResults = await resolveTestGroupResults(promisedResults);
-
     const failureMessage = getFinalMessage(results);
 
     if (failureMessage) {

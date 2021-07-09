@@ -1,10 +1,10 @@
 {
     "name": "test-vir",
-    "version": "0.0.14",
+    "version": "0.0.15",
     "description": "The heroic testing package",
     "main": "dist/index.js",
     "scripts": {
-        "prepublishOnly": "npm run test:full && chmod +x dist/api/api.js",
+        "prepublishOnly": "npm install && npm run test:full && chmod +x dist/api/api.js",
         "compile": "rm -rf dist && tsc",
         "test": "npm run compile && bash run-tests.sh",
         "test:full": "npm run test && npm run spellcheck -- --no-progress && npm run format:check",

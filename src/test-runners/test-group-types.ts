@@ -1,5 +1,5 @@
 import {Caller} from '../get-caller-file';
-import {ArrayElement, Overwrite} from '../type-augments';
+import {Overwrite} from '../type-augments';
 import {
     AcceptedTestInputs,
     IndividualTestResult,
@@ -50,13 +50,6 @@ export type FilteredTestGroupOutput = Readonly<
 >;
 
 export type FilteredWrappedTest = Readonly<WrappedTest & IgnoredReasonObject>;
-
-export type PromisedResult = Promise<ArrayElement<ResolvedTestGroupResults['allResults']>>;
-
-export type PromisedTestGroupResults = Overwrite<
-    ResolvedTestGroupResults,
-    Readonly<{allResults: PromisedResult[]}>
->;
 
 export type ResolvedTestGroupResults = Readonly<
     Required<FilteredTestGroupOutput> & {

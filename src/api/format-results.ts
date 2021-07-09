@@ -122,7 +122,7 @@ export function formatLineLeader(
     return `${getPassedString(success, containsWarning)}${separator} ${description}`;
 }
 
-function formatIndividualTestResults(
+export function formatIndividualTestResults(
     individualResult: IndividualTestResult<any, unknown>,
     debug = false,
 ): string {

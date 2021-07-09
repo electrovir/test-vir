@@ -1,4 +1,5 @@
 import {resolve} from 'path';
+import {formatIndividualTestResults} from '../api/format-results';
 import {EmptyTestGroupError} from '../errors/empty-test-group-error';
 import {FileNotFoundError} from '../errors/file-not-found-error';
 import {FileNotUsedError} from '../errors/file-not-used-error';
@@ -11,41 +12,35 @@ import {
     FilteredTestGroupOutput,
     FilteredWrappedTest,
     IgnoredReason,
-    PromisedTestGroupResults,
     ResolvedTestGroupResults,
     TestGroupOutput,
     WrappedTest,
 } from './test-group-types';
 
-export async function resolveTestGroupResults(
-    input: PromisedTestGroupResults,
-): Promise<ResolvedTestGroupResults>;
-export async function resolveTestGroupResults(
-    input: PromisedTestGroupResults[],
-): Promise<ResolvedTestGroupResults[]>;
-export async function resolveTestGroupResults(
-    input: PromisedTestGroupResults[] | PromisedTestGroupResults,
-): Promise<ResolvedTestGroupResults[] | ResolvedTestGroupResults> {
-    const groups: PromisedTestGroupResults[] = Array.isArray(input) ? input : [input];
+export async function resolveTestGroup(input: TestGroupOutput[] | TestGroupOutput): Promise<void> {
+    const groups: TestGroupOutput[] = Array.isArray(input) ? input : [input];
 
-    const promises = await Promise.all(
-        groups.map(async (testGroupResult) => {
-            const resolvedResults = await Promise.all(testGroupResult.allResults);
+    const results: ResolvedTestGroupResults[] = await runTestGroups(groups);
 
-            return {
-                ...testGroupResult,
-                allResults: resolvedResults,
-            };
-        }),
+    const failures = results.reduce(
+        (accumulatedErrors: IndividualTestResult<unknown, unknown>[], result) => {
+            const failures = result.allResults.filter((innerResult) => !innerResult.success);
+
+            return accumulatedErrors.concat(failures);
+        },
+        [],
     );
 
-    return Array.isArray(input) ? promises : promises[0]!;
+    const failureMessages = failures.map((failure) => formatIndividualTestResults(failure));
+
+    if (failureMessages.length) {
+        throw new Error(failureMessages.join('\n'));
+    }
 }
 
 export async function runTestGroups(
     testGroups: TestGroupOutput[],
     files?: {found: string[]; lost: string[]},
-    printAsTestsComplete = false,
 ): Promise<ResolvedTestGroupResults[]> {
     const lostFileTestGroups = createLostFileGroups(files ? files.lost : []);
     const filteredTestGroups = filterTestGroups(testGroups);
