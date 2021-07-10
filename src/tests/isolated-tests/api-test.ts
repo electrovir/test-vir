@@ -7,6 +7,7 @@ import {relative} from 'path';
 import {countFailures, runResolvedTestFiles} from '../..';
 import {formatLineLeader} from '../../api/format-results';
 import {colors} from '../../string-output';
+import {getAndClearGlobalTests} from '../../test-runners/global';
 import {ResultState} from '../../test-runners/result-state';
 
 async function main() {
@@ -14,17 +15,19 @@ async function main() {
     if (testResults.length < 3 || countFailures(testResults)) {
         throw new Error(`Failed to test normal files.`);
     }
-
+    /**
+     * This is needed because some of the tests in the above test add more tests to the global tests
+     * after they are cleared normally.
+     */
+    getAndClearGlobalTests();
     const noTestGroupResults = await runResolvedTestFiles(['./**/empty-test-group-input.js']);
+
     if (
         noTestGroupResults.length < 1 ||
         countFailures(testResults) ||
         noTestGroupResults[0]?.description !== 'Test group contained no tests'
     ) {
         throw new Error(`Failed to fail when a test group was empty.`);
-    }
-    if (noTestGroupResults[1]?.description !== 'Test group contained no tests') {
-        throw new Error(`Failed to fail when an async test group was empty.`);
     }
 
     const noResults = await runResolvedTestFiles(['./**/empty-file-input.js']);

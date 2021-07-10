@@ -18,7 +18,7 @@ async function main() {
     const failedFunctionInputResultFormatted = formatAllResults(
         await runResolvedTestFiles(['./**/failed-function-input-test.js']),
     );
-    if (!failedFunctionInputResultFormatted.includes(`error${colors.reset}: Error`)) {
+    if (!failedFunctionInputResultFormatted.includes(`error${colors.reset}:`)) {
         printWrongFormat(failedFunctionInputResultFormatted);
         throw new Error(`failedFunctionInputString test did not result in an error`);
     }

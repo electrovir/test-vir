@@ -15,9 +15,8 @@ testGroup((runTest) => {
     });
 });
 
-// testGroup should work with an async input
-testGroup(async (runTest) => {
-    await Promise.resolve();
+// testGroup should work with an async test
+testGroup((runTest) => {
     runTest(async () => {
         await Promise.resolve();
     });
@@ -75,7 +74,7 @@ testGroup({
             },
         });
         runTest({
-            expect: 4,
+            expect: 5,
             description: 'glob syntax expands',
             test: async () => {
                 const files = await expandGlobs(['./**/!(*.type).test.js']);

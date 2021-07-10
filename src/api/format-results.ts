@@ -251,8 +251,9 @@ function figureOutFailureReason(
                 return 'No error expectation was assigned.';
             }
         case ResultState.Error:
+            const error = result.error;
             return `${colors.fail}error${colors.reset}${separator}${formatValue(
-                String(result.error),
+                error instanceof Error && error.stack ? error.stack : String(error),
                 indent,
             )}`;
     }

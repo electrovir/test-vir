@@ -6,7 +6,7 @@ import {
     TestCommonProperties,
 } from './run-individual-test-types';
 
-export type TestGroupInputFunction = (testFunction: runTest) => Promise<void> | void;
+export type TestGroupInputFunction = (testFunction: runTest) => undefined | void;
 
 export type TestGroupInputObject = Readonly<
     TestCommonProperties & {

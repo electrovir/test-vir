@@ -60,6 +60,6 @@ export function testGroup(input: TestGroupInput): TestGroupOutput {
 
         return output;
     } catch (error) {
-        throwInternalTestVirError(`Error encountered while trying to make test group: "${error}"`);
+        throwInternalTestVirError(`Error while running testGroup: "${error}"`);
     }
 }
