@@ -1,8 +1,6 @@
 import {TestGroupOutput} from './test-group-types';
 
-/**
- * This is used for the CLI only
- */
+/** This is used for the CLI only */
 let globalTests: TestGroupOutput[] = [];
 
 export function addGlobalTest(input: TestGroupOutput) {

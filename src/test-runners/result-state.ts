@@ -1,33 +1,19 @@
 import {ArrayElement} from '../type-augments';
 
 export enum ResultState {
-    /**
-     * no expectations were given and no error was thrown
-     */
+    /** No expectations were given and no error was thrown */
     NoCheckPass = 'no-check-pass',
-    /**
-     * the test callback result matched the expected output
-     */
+    /** The test callback result matched the expected output */
     ExpectMatchPass = 'expect-match-pass',
-    /**
-     * the test callback result did not match the expected output (and no error was thrown)
-     */
+    /** The test callback result did not match the expected output (and no error was thrown) */
     ExpectMatchFail = 'expect-match-fail',
-    /**
-     * the test callback threw an error and did not match the error expectation
-     */
+    /** The test callback threw an error and did not match the error expectation */
     ErrorMatchFail = 'error-match-fail',
-    /**
-     * the test callback threw an error and the error matched the error expectation
-     */
+    /** The test callback threw an error and the error matched the error expectation */
     ErrorMatchPass = 'error-match-pass',
-    /**
-     * The test was ignored
-     */
+    /** The test was ignored */
     Ignored = 'ignored',
-    /**
-     * the test callback threw an error and no error expectation was present
-     */
+    /** The test callback threw an error and no error expectation was present */
     Error = 'error',
 }
 

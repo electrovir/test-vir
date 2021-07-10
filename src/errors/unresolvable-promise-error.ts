@@ -1,6 +1,4 @@
-/**
- * An error which indicates that a test group contained no tests
- */
+/** An error which indicates that a test group contained no tests */
 export class UnresolvablePromiseError extends Error {
     public name = 'UnresolvablePromiseError';
     constructor(testLocation: string) {

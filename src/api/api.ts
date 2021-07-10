@@ -113,8 +113,8 @@ function generatedFailedImportResults(failures: ImportError[]): ResolvedTestGrou
  * it is executed as a glob and the found files there are included in the output. If still no files
  * are found, the original string is simply included in the output.
  *
- * Thus, the output of this function can include missing files which should still be handled downstream.
- * The output will not contain duplicates.
+ * Thus, the output of this function can include missing files which should still be handled
+ * downstream. The output will not contain duplicates.
  */
 export async function expandGlobs(inputs: string[]): Promise<string[]> {
     const foundFiles = new Set<string>();

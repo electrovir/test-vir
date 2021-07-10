@@ -72,8 +72,8 @@ function errorsMatch<ErrorClassGeneric>(
  * @param input This can be either an object that matches the TestInput type or a function. If a
  *   function, it shouldn't return anything. Failure is assumed if an error is thrown. Functions
  *   that return a value need an "expect" value (a property on the TestInput type) in order to
- *   verify the function return value. Thus, a function that returns something should be assigned
- *   to a property ("test") on the TestInput type. Async functions are allowed and are properly
+ *   verify the function return value. Thus, a function that returns something should be assigned to
+ *   a property ("test") on the TestInput type. Async functions are allowed and are properly
  *   awaited. Deep equality checks are used on objects. Primitive, Object, Array, ArrayBuffer, Map,
  *   Set, and RegExp types are all supported.
  */

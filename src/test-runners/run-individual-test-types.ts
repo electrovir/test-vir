@@ -29,8 +29,8 @@ export type TestInputObject<ResultTypeGeneric, ErrorClassGeneric> = TestCommonPr
     test:
         | TestFunction<ResultTypeGeneric>
         /**
-         * this never type is required to allow functions which return Promise<never>
-         * without this, the never cascades up the type and whole object becomes never for some reason
+         * This never type is required to allow functions which return Promise<never> without this,
+         * the never cascades up the type and whole object becomes never for some reason
          */
         | TestFunction<never>;
 } & (ResultTypeGeneric extends EmptyFunctionReturn
@@ -55,8 +55,8 @@ export type EmptyFunctionReturn = void | never | undefined;
 export type AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric> =
     | TestInputObject<ResultTypeGeneric, ErrorClassGeneric>
     /**
-     * this EmptyFunctionReturn type is required to allow functions which return never
-     * without this, the type assumes it should be TestFunction even when it is clearly an object
+     * This EmptyFunctionReturn type is required to allow functions which return never without this,
+     * the type assumes it should be TestFunction even when it is clearly an object
      */
     | TestInputObject<EmptyFunctionReturn, ErrorClassGeneric>
     | TestFunction<EmptyFunctionReturn>;
