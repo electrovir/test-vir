@@ -7,7 +7,7 @@ import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
 import {TestError} from '../errors/test-error';
 import {Caller, emptyCaller} from '../get-caller-file';
 import {colors} from '../string-output';
-import {getAndClearGlobalTests} from '../test-runners/global';
+import {clearGlobalTests, getAndClearGlobalTests} from '../test-runners/global';
 import {ResultState} from '../test-runners/result-state';
 import {runTestGroups} from '../test-runners/test-group-runner';
 import {ResolvedTestGroupResults} from '../test-runners/test-group-types';
@@ -47,6 +47,8 @@ export async function runAllTestFiles(inputFiles: string[]): Promise<ResolvedTes
             },
             {foundFiles: [], lostFiles: []},
         );
+        // clear out before running tests
+        clearGlobalTests();
 
         const importPromises: Promise<unknown>[] = foundFiles.map((filePath) => {
             return new Promise<unknown>(async (promiseResolve) => {
@@ -65,7 +67,7 @@ export async function runAllTestFiles(inputFiles: string[]): Promise<ResolvedTes
         );
         const failedImportFiles = importFailures.map((failure) => failure.filePath);
 
-        const globalTestGroups = getAndClearGlobalTests();
+        const globalTestGroups = await getAndClearGlobalTests();
 
         const resultPromises = await runTestGroups(globalTestGroups, {
             found: foundFiles.filter((file) => !failedImportFiles.includes(file)),
@@ -76,7 +78,7 @@ export async function runAllTestFiles(inputFiles: string[]): Promise<ResolvedTes
 
         return resultPromises.concat(failedImportResults);
     } catch (error) {
-        throwInternalTestVirError(error);
+        throwInternalTestVirError(`Error running test-vir api: ${error}`);
     } finally {
         alreadyRunning = false;
     }

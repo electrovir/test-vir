@@ -15,8 +15,10 @@ testGroup((runTest) => {
     });
 });
 
-// testGroup should work with an async test
-testGroup((runTest) => {
+// testGroup should work with an async input
+testGroup(async (runTest) => {
+    await Promise.resolve();
+
     runTest(async () => {
         await Promise.resolve();
     });

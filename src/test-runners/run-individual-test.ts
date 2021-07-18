@@ -172,7 +172,7 @@ runIndividualTest<ResultTypeGeneric, ErrorClassGeneric>(
                         throwInternalTestVirError(`equality check did not product a boolean`);
                     }
                 } catch (error) {
-                    throwInternalTestVirError(error);
+                    throwInternalTestVirError(`Error running a test: ${error}`);
                 }
 
                 if (areEqual) {
