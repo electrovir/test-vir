@@ -1,19 +1,20 @@
 import {testGroup} from '../test-runners/test-group';
-import {TestGroupOutput} from '../test-runners/test-group-types';
+import {SyncTestGroupInput, TestGroupOutput} from '../test-runners/test-group-types';
 
 testGroup((runTest) => {
     runTest({
         description: 'testGroup output has tests when synchronous',
         expect: 1,
         test: async () => {
-            const output: TestGroupOutput = testGroup({
+            const input: SyncTestGroupInput = {
                 description: 'thing',
                 tests: (runTest) => {
                     runTest(() => {
                         //stuff
                     });
                 },
-            });
+            };
+            const output: TestGroupOutput = testGroup(input);
 
             return output.tests.length;
         },

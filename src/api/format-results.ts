@@ -104,7 +104,7 @@ export function formatSingleResult(
     return `${whiteSpace}${status}${result}${whiteSpace}`;
 }
 
-export function getPassedString(passed: boolean, containsWarning = false): string {
+function getPassedString(passed: boolean, containsWarning = false): string {
     return `${getPassedColor(passed, containsWarning)}${passed ? `Passed` : `Failed`}`;
 }
 

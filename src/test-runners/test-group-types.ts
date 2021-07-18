@@ -10,16 +10,12 @@ export type SyncTestGroupInputFunction = (testFunction: runTest) => undefined | 
 export type AsyncTestGroupInputFunction = (testFunction: runTest) => Promise<void> | void;
 export type TestGroupInputFunction = SyncTestGroupInputFunction | AsyncTestGroupInputFunction;
 
-export type SyncTestGroupInputObject = Readonly<
-    TestCommonProperties & {
-        tests: SyncTestGroupInputFunction;
-    }
->;
-export type AsyncTestGroupInputObject = Readonly<
-    TestCommonProperties & {
-        tests: AsyncTestGroupInputFunction;
-    }
->;
+export interface SyncTestGroupInputObject extends Readonly<TestCommonProperties> {
+    readonly tests: SyncTestGroupInputFunction;
+}
+export interface AsyncTestGroupInputObject extends Readonly<TestCommonProperties> {
+    readonly tests: AsyncTestGroupInputFunction;
+}
 export type TestGroupInputObject = AsyncTestGroupInputObject | SyncTestGroupInputObject;
 
 /**
