@@ -85,7 +85,14 @@ async function handleImports(
                 if (!newTestGroups.length) {
                     emptyFiles.push(currentFilePath);
                 }
-                testGroups.push(...newTestGroups);
+                testGroups.push(
+                    ...newTestGroups.map((testGroup) => {
+                        return {
+                            ...testGroup,
+                            fileSource: currentFilePath,
+                        };
+                    }),
+                );
             } catch (error) {
                 failures.push(new ImportError(error, currentFilePath));
             }
@@ -120,6 +127,7 @@ function getUnusedFileErrorResults(unusedFiles: string[]): ResolvedTestGroupResu
             forceOnly: false,
             ignoredReason: undefined,
             tests: [],
+            fileSource: unusedFilePath,
         };
 
         return result;
@@ -146,6 +154,7 @@ function generatedFailedImportResults(failures: ImportError[]): ResolvedTestGrou
             forceOnly: false,
             ignoredReason: undefined,
             tests: [],
+            fileSource: failure.filePath,
         };
 
         return result;

@@ -39,6 +39,7 @@ export type TestGroupOutput = Readonly<
     Required<Omit<TestGroupInputObject, 'tests'>> & {
         tests: WrappedTest[];
         caller: Caller;
+        fileSource: string | undefined;
     }
 >;
 

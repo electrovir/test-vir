@@ -122,6 +122,7 @@ function createLostFileGroups(lostFiles: string[]): FilteredTestGroupOutput[] {
                 },
             ],
             ignoredReason: undefined,
+            fileSource: lostFilePath,
         };
     });
 }

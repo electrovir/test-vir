@@ -32,10 +32,11 @@ export function testGroup(input: TestGroupInput): TestGroupOutput | Promise<Test
         const caller = getCaller(2);
 
         const tests: WrappedTest[] = [];
-        function createOutput() {
+        function createOutput(): TestGroupOutput {
             return {
                 tests,
                 caller,
+                fileSource: undefined,
                 ...(isTestGroupInputObject(input)
                     ? {
                           description: input.description || '',
