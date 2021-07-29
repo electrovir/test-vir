@@ -12,6 +12,7 @@ import {
     ErrorExpectation,
     IndividualTestResult,
     OutputWithError,
+    TestFunction,
     TestInputObject,
 } from './run-individual-test-types';
 
@@ -21,6 +22,12 @@ export function isTestObject<ResultTypeGeneric, ErrorClassGeneric>(
     | TestInputObject<ResultTypeGeneric, ErrorClassGeneric>
     | TestInputObject<EmptyFunctionReturn, ErrorClassGeneric> {
     return typeof input !== 'function' && input.hasOwnProperty('test');
+}
+
+function isTestFunction<ResultTypeGeneric, ErrorClassGeneric>(
+    input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric>,
+): input is TestFunction<EmptyFunctionReturn> {
+    return !isTestObject(input);
 }
 
 function containsExpectError(
@@ -96,7 +103,7 @@ runIndividualTest<ResultTypeGeneric, ErrorClassGeneric>(
 
     try {
         addExitCallback(earlyExitCallback);
-        const output = await (isTestObject(input) ? input.test() : input());
+        const output = await (isTestFunction(input) ? input() : input.test());
         // this is used to catch tests with an unresolvable promise and at least log an error message
         // otherwise the process just exits with no information
 
