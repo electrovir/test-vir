@@ -26,6 +26,14 @@ async function main() {
     if (noTestGroupResults[1]?.description !== 'Test group contained no tests') {
         throw new Error(`Failed to fail when an async test group was empty.`);
     }
+    if (
+        noTestGroupResults[1]?.fileSource !==
+        './dist/tests/isolated-tests/input-files/empty-test-group-input.js'
+    ) {
+        throw new Error(
+            `fileSource property was not properly included. Got ${noTestGroupResults[1]?.fileSource}`,
+        );
+    }
 
     const noResults = await runResolvedTestFiles(['./**/empty-file-input.js']);
     if (!noResults.length || !countFailures(noResults)) {
