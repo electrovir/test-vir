@@ -1,8 +1,6 @@
-import {resolve} from 'path';
 import {formatIndividualTestResults} from '../api/format-results';
 import {EmptyTestGroupError} from '../errors/empty-test-group-error';
 import {FileNotFoundError} from '../errors/file-not-found-error';
-import {FileNotUsedError} from '../errors/file-not-used-error';
 import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
 import {Caller, emptyCaller} from '../get-caller-file';
 import {ResultState} from './result-state';
@@ -44,16 +42,8 @@ export async function runTestGroups(
 ): Promise<ResolvedTestGroupResults[]> {
     const lostFileTestGroups = createLostFileGroups(files ? files.lost : []);
     const filteredTestGroups = filterTestGroups(testGroups);
-    const unusedFileTestGroups = getUnusedFileErrorGroups(
-        files ? files.found : [],
-        filteredTestGroups,
-    );
 
-    const allTestGroups: FilteredTestGroupOutput[] = [
-        ...filteredTestGroups,
-        ...unusedFileTestGroups,
-        ...lostFileTestGroups,
-    ];
+    const allTestGroups: FilteredTestGroupOutput[] = [...filteredTestGroups, ...lostFileTestGroups];
 
     try {
         return await allTestGroups.reduce(async (allTestGroupsPromise, testGroup) => {
@@ -136,37 +126,6 @@ function createLostFileGroups(lostFiles: string[]): FilteredTestGroupOutput[] {
     });
 }
 
-function getUnusedFileErrorGroups(
-    filePaths: string[],
-    results: Readonly<FilteredTestGroupOutput>[],
-): Readonly<FilteredTestGroupOutput>[] {
-    const foundFilesSet = new Set(results.map((result) => resolve(result.caller.filePath)));
-
-    const unusedFiles = filePaths.filter((filePath) => {
-        return !foundFilesSet.has(resolve(filePath));
-    });
-
-    return unusedFiles.map((unusedFilePath) => {
-        const unusedFileCaller = {...emptyCaller, filePath: unusedFilePath};
-        return {
-            tests: [
-                {
-                    input: () => {
-                        throw new FileNotUsedError(`File contained no tests: ${unusedFilePath}`);
-                    },
-                    ignoredReason: undefined,
-                    caller: unusedFileCaller,
-                },
-            ],
-            description: 'File contains no tests',
-            exclude: false,
-            forceOnly: false,
-            caller: unusedFileCaller,
-            ignoredReason: undefined,
-        };
-    });
-}
-
 type AlmostFilteredTestGroupOutput = Omit<FilteredTestGroupOutput, 'ignoredReason'>;
 
 function setIgnored(
@@ -226,6 +185,7 @@ function combineTests({
     ];
 }
 
+/** Filters excluded and forced tests */
 export function filterTestGroups(testGroups: TestGroupOutput[]): FilteredTestGroupOutput[] {
     const nonExcludedGroups: AlmostFilteredTestGroupOutput[] = [];
     const forcedGroups: AlmostFilteredTestGroupOutput[] = [];

@@ -100,6 +100,21 @@ async function main() {
     if (expectErrorWithNoErrorThrown[0]!.allResults[0]!.success) {
         throw new Error(`Test with message and class expectation did not properly fail`);
     }
+
+    const indirectTestResults = await runResolvedTestFiles(['./**/indirect-test-usage.js']);
+    const indirectFailures = indirectTestResults.reduce((allFailures: boolean[], outerResult) => {
+        return allFailures.concat(
+            ...outerResult.allResults
+                .map((innerResult) => innerResult.success)
+                .filter((success) => {
+                    return !success;
+                }),
+        );
+    }, []);
+    if (indirectFailures.length) {
+        console.log(indirectTestResults[0]!.allResults);
+        throw new Error(`Indirect test failed`);
+    }
 }
 
 function getMessage(success: boolean): string {
