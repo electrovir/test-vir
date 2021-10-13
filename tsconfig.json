@@ -2,17 +2,22 @@
     "compilerOptions": {
         "alwaysStrict": true,
         "declaration": true,
-        "declarationMap": false,
+        "esModuleInterop": true,
+        "exactOptionalPropertyTypes": true,
         "forceConsistentCasingInFileNames": true,
-        "module": "CommonJS",
+        "module": "commonjs",
         "noImplicitAny": true,
+        "noImplicitOverride": true,
         "noImplicitReturns": true,
         "noImplicitThis": true,
         "noUncheckedIndexedAccess": true,
         "outDir": "dist",
         "rootDir": "src",
+        "skipDefaultLibCheck": true,
+        "skipLibCheck": true,
         "strict": true,
-        "target": "ES2018"
+        "target": "ES2018",
+        "useUnknownInCatchVariables": true
     },
-    "exclude": ["dist"]
+    "exclude": ["node_modules", "dist", "test-repos", "scripts"]
 }
