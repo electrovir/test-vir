@@ -1,6 +1,6 @@
+import {Caller, emptyCaller} from '../../caller/caller';
 import {EmptyTestGroupError} from '../../errors/empty-test-group.error';
 import {FileNotFoundError} from '../../errors/file-not-found.error';
-import {Caller, emptyCaller} from '../../get-caller-file';
 import {IndividualTestResult} from '../individual-test/individual-test-output';
 import {ResultState} from '../result-state';
 import {FilteredTestGroupOutput} from './test-group-output';

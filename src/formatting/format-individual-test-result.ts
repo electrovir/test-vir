@@ -1,5 +1,5 @@
 import {IndividualTestResult} from '..';
-import {callerToString} from '../get-caller-file';
+import {callerToString} from '../caller/caller-to-string';
 import {createIndentString, separator} from '../strings/string-format';
 import {isTestObject} from '../testing/individual-test/individual-test-type-guards';
 import {ResultState, resultStateExplanations} from '../testing/result-state';

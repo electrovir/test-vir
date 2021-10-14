@@ -1,5 +1,5 @@
 import {Overwrite} from 'augment-vir';
-import {Caller} from '../../get-caller-file';
+import {Caller} from '../../caller/caller';
 import {AcceptedTestInputs} from '../individual-test/individual-test-input';
 import {IndividualTestResult} from '../individual-test/individual-test-output';
 import {TestGroupInputObject} from './test-group-input';

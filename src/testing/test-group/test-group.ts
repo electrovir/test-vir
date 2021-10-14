@@ -1,5 +1,5 @@
+import {getCaller} from '../../caller/get-caller';
 import {throwInternalTestVirError} from '../../errors/internal-test-vir.error';
-import {getCaller} from '../../get-caller-file';
 import {AcceptedTestInputs} from '../individual-test/individual-test-input';
 import {addGlobalTest} from './global-test-groups';
 import {isTestGroupInputObject} from './test-group-guards';

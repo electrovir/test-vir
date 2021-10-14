@@ -1,4 +1,4 @@
-import {Caller} from '../../get-caller-file';
+import {Caller} from '../../caller/caller';
 import {ResultState} from '../result-state';
 import {AcceptedTestInputs} from './individual-test-input';
 

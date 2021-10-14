@@ -2,6 +2,7 @@
 import {existsSync} from 'fs';
 import {promise as glob} from 'glob-promise';
 import {resolve} from 'path';
+import {Caller, emptyCaller} from '../caller/caller';
 import {FileNotUsedError} from '../errors/file-not-used.error';
 import {ImportError} from '../errors/import.error';
 import {throwInternalTestVirError} from '../errors/internal-test-vir.error';
@@ -9,7 +10,6 @@ import {TestError} from '../errors/test.error';
 import {colors} from '../formatting/colors';
 import {getFinalMessage, getPassedColor} from '../formatting/did-test-pass-string';
 import {formatSingleTestGroupResult} from '../formatting/format-single-test-group-result';
-import {Caller, emptyCaller} from '../get-caller-file';
 import {ResultState} from '../testing/result-state';
 import {clearGlobalTests, getAndClearGlobalTests} from '../testing/test-group/global-test-groups';
 import {runTestGroups} from '../testing/test-group/run-test-groups';

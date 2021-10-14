@@ -1,37 +1,5 @@
 import {relative} from 'path';
-import {separator} from './strings/string-format';
-
-export type Caller = {
-    filePath: string;
-    lineNumber: number;
-    columnNumber: number;
-};
-
-export function callerToString(
-    input?: Caller,
-    options: {line?: boolean; file?: boolean} = {
-        line: true,
-        file: true,
-    },
-): string {
-    if (!input) {
-        return callerToString(emptyCaller, options);
-    }
-
-    const ignoreLine =
-        ('line' in options && !options.line) || input.lineNumber < 0 || input.columnNumber < 0;
-
-    const file =
-        'file' in options && !options.file ? '' : `${input.filePath}${ignoreLine ? '' : separator}`;
-    const line = ignoreLine ? '' : `${input.lineNumber}${separator}${input.columnNumber}`;
-    return `${file}${line}`;
-}
-
-export const emptyCaller: Readonly<Caller> = {
-    filePath: 'caller file not found',
-    lineNumber: -1,
-    columnNumber: -1,
-} as const;
+import {Caller, emptyCaller} from './caller';
 
 // I tried multiple npm packages for doing this and they all failed whereas this succeeds
 export function getCaller(howFarBack: number): Caller {
