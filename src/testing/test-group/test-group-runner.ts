@@ -3,8 +3,9 @@ import {EmptyTestGroupError} from '../../errors/empty-test-group-error';
 import {FileNotFoundError} from '../../errors/file-not-found-error';
 import {throwInternalTestVirError} from '../../errors/internal-test-vir-error';
 import {Caller, emptyCaller} from '../../get-caller-file';
-import {isTestObject, runIndividualTest} from '../individual-test/run-individual-test';
-import {IndividualTestResult} from '../individual-test/run-individual-test-types';
+import {IndividualTestResult} from '../individual-test/individual-test-output';
+import {isTestObject} from '../individual-test/individual-test-type-guards';
+import {runIndividualTest} from '../individual-test/run-individual-test';
 import {ResultState} from '../result-state';
 import {
     FilteredTestGroupOutput,

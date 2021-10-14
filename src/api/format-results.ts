@@ -3,11 +3,9 @@ import {FileNotFoundError} from '../errors/file-not-found-error';
 import {FileNotUsedError} from '../errors/file-not-used-error';
 import {callerToString} from '../get-caller-file';
 import {colors, createIndentString, separator} from '../string-output';
-import {isTestObject} from '../testing/individual-test/run-individual-test';
-import {
-    AcceptedTestInputs,
-    IndividualTestResult,
-} from '../testing/individual-test/run-individual-test-types';
+import {AcceptedTestInputs} from '../testing/individual-test/individual-test-input';
+import {IndividualTestResult} from '../testing/individual-test/individual-test-output';
+import {isTestObject} from '../testing/individual-test/individual-test-type-guards';
 import {ResultState, resultStateExplanations} from '../testing/result-state';
 import {ResolvedTestGroupResults} from '../testing/test-group/test-group-types';
 

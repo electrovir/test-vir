@@ -1,77 +1,13 @@
-import {RequiredAndNotNullBy} from 'augment-vir';
 import {addExitCallback, removeExitCallback} from 'catch-exit';
 import equal from 'fast-deep-equal';
 import {throwInternalTestVirError} from '../../errors/internal-test-vir-error';
-import {TestError} from '../../errors/test-error';
 import {UnresolvablePromiseError} from '../../errors/unresolvable-promise-error';
 import {Caller, callerToString, getCaller} from '../../get-caller-file';
 import {ResultState} from '../result-state';
-import {
-    AcceptedTestInputs,
-    EmptyFunctionReturn,
-    ErrorExpectation,
-    IndividualTestResult,
-    OutputWithError,
-    TestFunction,
-    TestInputObject,
-} from './run-individual-test-types';
-
-export function isTestObject<ResultTypeGeneric, ErrorClassGeneric>(
-    input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric>,
-): input is
-    | TestInputObject<ResultTypeGeneric, ErrorClassGeneric>
-    | TestInputObject<EmptyFunctionReturn, ErrorClassGeneric> {
-    return typeof input !== 'function' && input.hasOwnProperty('test');
-}
-
-function isTestFunction<ResultTypeGeneric, ErrorClassGeneric>(
-    input: AcceptedTestInputs<ResultTypeGeneric, ErrorClassGeneric>,
-): input is TestFunction<EmptyFunctionReturn> {
-    return !isTestObject(input);
-}
-
-function containsExpectError(
-    input: any,
-): input is RequiredAndNotNullBy<TestInputObject<any, any>, 'expectError'> {
-    return (
-        'expectError' in input &&
-        input.expectError &&
-        ('errorClass' in input.expectError || 'errorMessage' in input.expectError)
-    );
-}
-
-function errorsMatch<ErrorClassGeneric>(
-    error: unknown,
-    comparison: ErrorExpectation<ErrorClassGeneric>,
-): boolean {
-    try {
-        let errorClassMatch = true;
-        if ('errorClass' in comparison) {
-            errorClassMatch = error instanceof comparison.errorClass;
-        }
-        let errorMessageMatch = true;
-        if ('errorMessage' in comparison) {
-            if (error && typeof error === 'object' && 'message' in error) {
-                const message: string = String((error as {message: unknown}).message);
-
-                if (typeof comparison.errorMessage === 'string') {
-                    // if this as assumption is wrong then an error will be thrown will is caught later
-                    errorMessageMatch = message === comparison.errorMessage;
-                } else {
-                    errorMessageMatch = !!(comparison.errorMessage.exec(message) || []).length;
-                }
-            } else {
-                errorMessageMatch = false;
-            }
-        }
-
-        return errorClassMatch && errorMessageMatch;
-    } catch (checkError) {
-        return false;
-    }
-
-    throw new TestError(`Empty error expectation: ${JSON.stringify(comparison)}`);
-}
+import {doErrorsMatch} from './equivalence/errors';
+import {AcceptedTestInputs} from './individual-test-input';
+import {IndividualTestResult, OutputWithError} from './individual-test-output';
+import {containsExpectError, isTestFunction, isTestObject} from './individual-test-type-guards';
 
 /**
  * Run a single test. These should be a small and self contained as possible.
@@ -141,7 +77,7 @@ runIndividualTest<ResultTypeGeneric, ErrorClassGeneric>(
             // at this point either the error matches the expected error or the test failed
             if (isTestObject(input) && containsExpectError(input)) {
                 // check error matching
-                if (errorsMatch(testCallbackError, input.expectError)) {
+                if (doErrorsMatch(testCallbackError, input.expectError)) {
                     // this is an expected error and should PASS
                     returnValue = {
                         ...baseReturnValue,

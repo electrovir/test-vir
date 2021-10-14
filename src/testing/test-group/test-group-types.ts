@@ -1,19 +1,17 @@
 import {Overwrite} from 'augment-vir';
 import {Caller} from '../../get-caller-file';
-import {
-    AcceptedTestInputs,
-    IndividualTestResult,
-    TestCommonProperties,
-} from '../individual-test/run-individual-test-types';
+import {CommonTestProperties} from '../common-test-properties';
+import {AcceptedTestInputs} from '../individual-test/individual-test-input';
+import {IndividualTestResult} from '../individual-test/individual-test-output';
 
 export type SyncTestGroupInputFunction = (testFunction: runTest) => undefined | void;
 export type AsyncTestGroupInputFunction = (testFunction: runTest) => Promise<void> | void;
 export type TestGroupInputFunction = SyncTestGroupInputFunction | AsyncTestGroupInputFunction;
 
-export interface SyncTestGroupInputObject extends Readonly<TestCommonProperties> {
+export interface SyncTestGroupInputObject extends Readonly<CommonTestProperties> {
     readonly tests: SyncTestGroupInputFunction;
 }
-export interface AsyncTestGroupInputObject extends Readonly<TestCommonProperties> {
+export interface AsyncTestGroupInputObject extends Readonly<CommonTestProperties> {
     readonly tests: AsyncTestGroupInputFunction;
 }
 export type TestGroupInputObject = AsyncTestGroupInputObject | SyncTestGroupInputObject;
