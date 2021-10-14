@@ -1,7 +1,7 @@
 import {addExitCallback, removeExitCallback} from 'catch-exit';
 import equal from 'fast-deep-equal';
-import {throwInternalTestVirError} from '../../errors/internal-test-vir-error';
-import {UnresolvablePromiseError} from '../../errors/unresolvable-promise-error';
+import {throwInternalTestVirError} from '../../errors/internal-test-vir.error';
+import {UnresolvablePromiseError} from '../../errors/unresolvable-promise.error';
 import {Caller, callerToString, getCaller} from '../../get-caller-file';
 import {ResultState} from '../result-state';
 import {doErrorsMatch} from './equivalence/errors';

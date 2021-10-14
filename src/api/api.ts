@@ -2,10 +2,10 @@
 import {existsSync} from 'fs';
 import {promise as glob} from 'glob-promise';
 import {resolve} from 'path';
-import {FileNotUsedError} from '../errors/file-not-used-error';
-import {ImportError} from '../errors/import-error';
-import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
-import {TestError} from '../errors/test-error';
+import {FileNotUsedError} from '../errors/file-not-used.error';
+import {ImportError} from '../errors/import.error';
+import {throwInternalTestVirError} from '../errors/internal-test-vir.error';
+import {TestError} from '../errors/test.error';
 import {Caller, emptyCaller} from '../get-caller-file';
 import {colors} from '../string-output';
 import {ResultState} from '../testing/result-state';

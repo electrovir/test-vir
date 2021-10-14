@@ -1,4 +1,4 @@
-import {TestError} from '../../../errors/test-error';
+import {TestError} from '../../../errors/test.error';
 import {ErrorExpectation} from '../individual-test-input';
 
 export function doErrorsMatch<ErrorClassGeneric>(

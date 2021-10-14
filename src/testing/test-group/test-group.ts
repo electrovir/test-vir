@@ -1,4 +1,4 @@
-import {throwInternalTestVirError} from '../../errors/internal-test-vir-error';
+import {throwInternalTestVirError} from '../../errors/internal-test-vir.error';
 import {getCaller} from '../../get-caller-file';
 import {AcceptedTestInputs} from '../individual-test/individual-test-input';
 import {addGlobalTest} from './global-test-groups';

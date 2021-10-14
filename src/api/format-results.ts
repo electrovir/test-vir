@@ -1,6 +1,6 @@
-import {EmptyTestGroupError} from '../errors/empty-test-group-error';
-import {FileNotFoundError} from '../errors/file-not-found-error';
-import {FileNotUsedError} from '../errors/file-not-used-error';
+import {EmptyTestGroupError} from '../errors/empty-test-group.error';
+import {FileNotFoundError} from '../errors/file-not-found.error';
+import {FileNotUsedError} from '../errors/file-not-used.error';
 import {callerToString} from '../get-caller-file';
 import {colors, createIndentString, separator} from '../string-output';
 import {AcceptedTestInputs} from '../testing/individual-test/individual-test-input';

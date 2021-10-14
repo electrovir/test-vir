@@ -1,5 +1,5 @@
 import {formatIndividualTestResults} from '../../api/format-results';
-import {throwInternalTestVirError} from '../../errors/internal-test-vir-error';
+import {throwInternalTestVirError} from '../../errors/internal-test-vir.error';
 import {IndividualTestResult} from '../individual-test/individual-test-output';
 import {runIndividualTest} from '../individual-test/run-individual-test';
 import {ResultState} from '../result-state';
