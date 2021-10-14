@@ -1,9 +1,9 @@
-import {runAllTestFiles} from '..';
+import {runTestFiles} from '..';
 
 async function main() {
     const myFiles = ['path-to-my-test-file.js', './**/*.test.js'];
 
-    const promisedResults = await runAllTestFiles(myFiles);
+    const promisedResults = await runTestFiles(myFiles);
     promisedResults.forEach(async (promisedResult) => {
         // print test success as each test finishes
         await Promise.all(

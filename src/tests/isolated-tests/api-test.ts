@@ -4,18 +4,18 @@
  */
 
 import {relative} from 'path';
-import {countFailures, runResolvedTestFiles} from '../..';
+import {countFailures, runTestFiles} from '../..';
 import {colors} from '../../formatting/colors';
 import {formatLineLeader} from '../../formatting/did-test-pass-string';
 import {ResultState} from '../../testing/result-state';
 
 async function main() {
-    const testResults = await runResolvedTestFiles(['./**/!(*.type).test.js']);
+    const testResults = await runTestFiles(['./**/!(*.type).test.js']);
     if (testResults.length < 3 || countFailures(testResults)) {
         throw new Error(`Failed to test normal files.`);
     }
 
-    const noTestGroupResults = await runResolvedTestFiles(['./**/empty-test-group-input.js']);
+    const noTestGroupResults = await runTestFiles(['./**/empty-test-group-input.js']);
     if (
         noTestGroupResults.length < 1 ||
         countFailures(testResults) ||
@@ -35,17 +35,17 @@ async function main() {
         );
     }
 
-    const noResults = await runResolvedTestFiles(['./**/empty-file-input.js']);
+    const noResults = await runTestFiles(['./**/empty-file-input.js']);
     if (!noResults.length || !countFailures(noResults)) {
         throw new Error(`empty test files should cause failures`);
     }
 
-    const fileNotFoundResults = await runResolvedTestFiles(['this-file-does-not-exist']);
+    const fileNotFoundResults = await runTestFiles(['this-file-does-not-exist']);
     if (!fileNotFoundResults.length || !countFailures(fileNotFoundResults)) {
         throw new Error(`not found files should cause failures`);
     }
 
-    const forcedTestGroupResults = await runResolvedTestFiles(['./**/force-only-input*.js']);
+    const forcedTestGroupResults = await runTestFiles(['./**/force-only-input*.js']);
     if (forcedTestGroupResults.length !== 8) {
         throw new Error(
             `forced tests did not read both files, only got ${forcedTestGroupResults.length} testGroups`,
@@ -67,7 +67,7 @@ async function main() {
         throw new Error(`forced test should have passed`);
     }
 
-    const invalidImportResults = await runResolvedTestFiles(['./**/invalid-import-input.js']);
+    const invalidImportResults = await runTestFiles(['./**/invalid-import-input.js']);
     if (invalidImportResults.length !== 1) {
         throw new Error(
             `invalid-import-input did not generate a single test group, it generated ${invalidImportResults.length}`,
@@ -85,9 +85,7 @@ async function main() {
         throw new Error('invalid-import-inputs did not fail as it should have');
     }
 
-    const invalidErrorResults = await runResolvedTestFiles([
-        './**/error-class-and-message-input.js',
-    ]);
+    const invalidErrorResults = await runTestFiles(['./**/error-class-and-message-input.js']);
     if (invalidErrorResults.length !== 1) {
         throw new Error(
             `invalid-import-input did not generate a single test group, it generated ${invalidErrorResults.length}`,
@@ -97,7 +95,7 @@ async function main() {
         throw new Error(`Test with message and class expectation did not properly fail`);
     }
 
-    const expectErrorWithNoErrorThrown = await runResolvedTestFiles([
+    const expectErrorWithNoErrorThrown = await runTestFiles([
         './**/failed-with-regex-expect-error-message.js',
     ]);
     if (expectErrorWithNoErrorThrown.length !== 1) {
@@ -109,7 +107,7 @@ async function main() {
         throw new Error(`Test with message and class expectation did not properly fail`);
     }
 
-    const indirectTestResults = await runResolvedTestFiles(['./**/indirect-test-usage.js']);
+    const indirectTestResults = await runTestFiles(['./**/indirect-test-usage.js']);
     const indirectFailures = indirectTestResults.reduce((allFailures: boolean[], outerResult) => {
         return allFailures.concat(
             ...outerResult.allResults

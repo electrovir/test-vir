@@ -27,7 +27,7 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "bin": {
-        "test-vir": "dist/api/api.js"
+        "test-vir": "dist/api/cli.js"
     },
     "scripts": {
         "format": "virmator format",

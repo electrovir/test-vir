@@ -1,5 +1,10 @@
-import {runAllTestFiles, TestError, testGroup} from '..';
-import {expandGlobs, recursiveRunAllTestFilesErrorMessage} from '../api/api';
+import {
+    expandGlobs,
+    recursiveRunAllTestFilesErrorMessage,
+    runTestFiles,
+    TestError,
+    testGroup,
+} from '../';
 
 // the most basic of tests
 
@@ -38,7 +43,7 @@ testGroup({
                 errorMessage: recursiveRunAllTestFilesErrorMessage,
                 errorClass: TestError,
             },
-            test: async () => await runAllTestFiles(['']),
+            test: async () => await runTestFiles(['']),
         });
         runTest({
             expect: 1,

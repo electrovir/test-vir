@@ -1,4 +1,5 @@
 export * from './api/api';
+export * from './api/imports/glob';
 export * from './api/resolve-test-groups';
 export * from './caller/caller';
 export * from './caller/get-caller';

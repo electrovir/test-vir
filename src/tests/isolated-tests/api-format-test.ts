@@ -4,7 +4,7 @@
  */
 
 import {relative} from 'path';
-import {runResolvedTestFiles} from '../..';
+import {runTestFiles} from '../..';
 import {colors} from '../../formatting/colors';
 import {formatLineLeader} from '../../formatting/did-test-pass-string';
 import {formatAllResults} from '../../formatting/format-all-results';
@@ -17,7 +17,7 @@ function printWrongFormat(input: string): void {
 
 async function main() {
     const failedFunctionInputResultFormatted = formatAllResults(
-        await runResolvedTestFiles(['./**/failed-function-input-test.js']),
+        await runTestFiles(['./**/failed-function-input-test.js']),
     );
     if (!failedFunctionInputResultFormatted.includes(`error${colors.reset}:`)) {
         printWrongFormat(failedFunctionInputResultFormatted);
@@ -29,7 +29,7 @@ async function main() {
     }
 
     const ignoredTestsResultsFormatted = formatAllResults(
-        await runResolvedTestFiles(['./**/force-only-input*.js']),
+        await runTestFiles(['./**/force-only-input*.js']),
         true,
     );
     const ignoredCount = (ignoredTestsResultsFormatted.match(/ignored\)/g) || []).length;
@@ -41,7 +41,7 @@ async function main() {
     }
 
     const regexExpectErrorOutput = formatAllResults(
-        await runResolvedTestFiles(['./**/failed-with-regex-expect-error-message.js']),
+        await runTestFiles(['./**/failed-with-regex-expect-error-message.js']),
         true,
     );
     if (!regexExpectErrorOutput.includes('"errorMessage": /test regex/')) {
