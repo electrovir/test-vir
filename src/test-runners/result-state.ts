@@ -1,4 +1,4 @@
-import {ArrayElement} from '../type-augments';
+import {ArrayElement} from 'augment-vir';
 
 export enum ResultState {
     /** No expectations were given and no error was thrown */

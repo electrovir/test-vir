@@ -1,5 +1,5 @@
+import {Overwrite} from 'augment-vir';
 import {Caller} from '../get-caller-file';
-import {Overwrite} from '../type-augments';
 import {
     AcceptedTestInputs,
     IndividualTestResult,

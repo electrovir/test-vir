@@ -1,10 +1,10 @@
+import {RequiredAndNotNullBy} from 'augment-vir';
 import {addExitCallback, removeExitCallback} from 'catch-exit';
-import * as equal from 'fast-deep-equal';
+import equal from 'fast-deep-equal';
 import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
 import {TestError} from '../errors/test-error';
 import {UnresolvablePromiseError} from '../errors/unresolvable-promise-error';
 import {Caller, callerToString, getCaller} from '../get-caller-file';
-import {RequiredBy} from '../type-augments';
 import {ResultState} from './result-state';
 import {
     AcceptedTestInputs,
@@ -32,7 +32,7 @@ function isTestFunction<ResultTypeGeneric, ErrorClassGeneric>(
 
 function containsExpectError(
     input: any,
-): input is RequiredBy<TestInputObject<any, any>, 'expectError'> {
+): input is RequiredAndNotNullBy<TestInputObject<any, any>, 'expectError'> {
     return (
         'expectError' in input &&
         input.expectError &&

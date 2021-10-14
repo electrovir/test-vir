@@ -37,7 +37,7 @@ export type TestInputObject<ResultTypeGeneric, ErrorClassGeneric> = TestCommonPr
         ? // if the test function returns void then there should not be any expect
           {
               expect?: undefined;
-              expectError?: ErrorExpectation<ErrorClassGeneric>;
+              expectError?: ErrorExpectation<ErrorClassGeneric> | undefined;
           }
         : // if the test function returns something an expect must be present
           | {

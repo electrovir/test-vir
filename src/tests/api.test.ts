@@ -88,7 +88,17 @@ testGroup({
             runTest({
                 description: 'undefined expectError should work fine',
                 expectError: undefined,
+                expect: undefined,
                 test: () => {},
+            }),
+        );
+
+        testGroup((runTest) =>
+            runTest({
+                description: 'undefined expectError along with expect should work fine',
+                expectError: undefined,
+                expect: '',
+                test: () => '',
             }),
         );
     },
