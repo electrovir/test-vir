@@ -10,8 +10,8 @@ import {Caller, emptyCaller} from '../get-caller-file';
 import {colors} from '../string-output';
 import {ResultState} from '../testing/result-state';
 import {clearGlobalTests, getAndClearGlobalTests} from '../testing/test-group/global-test-groups';
-import {runTestGroups} from '../testing/test-group/test-group-runner';
-import {ResolvedTestGroupResults, TestGroupOutput} from '../testing/test-group/test-group-types';
+import {runTestGroups} from '../testing/test-group/run-test-groups';
+import {ResolvedTestGroupResults, TestGroupOutput} from '../testing/test-group/test-group-output';
 import {formatSingleResult, getFinalMessage, getPassedColor} from './format-results';
 
 let alreadyRunning = false;

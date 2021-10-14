@@ -1,4 +1,4 @@
-import {TestGroupOutput} from './test-group-types';
+import {TestGroupOutput} from './test-group-output';
 
 /** This is used for the CLI only */
 let globalTests: Promise<TestGroupOutput>[] = [];

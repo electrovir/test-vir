@@ -2,19 +2,14 @@ import {throwInternalTestVirError} from '../../errors/internal-test-vir-error';
 import {getCaller} from '../../get-caller-file';
 import {AcceptedTestInputs} from '../individual-test/individual-test-input';
 import {addGlobalTest} from './global-test-groups';
+import {isTestGroupInputObject} from './test-group-guards';
 import {
     AsyncTestGroupInput,
     SyncTestGroupInput,
     TestGroupInput,
     TestGroupInputFunction,
-    TestGroupInputObject,
-    TestGroupOutput,
-    WrappedTest,
-} from './test-group-types';
-
-function isTestGroupInputObject(input: TestGroupInput): input is TestGroupInputObject {
-    return typeof input !== 'function' && input.hasOwnProperty('tests');
-}
+} from './test-group-input';
+import {TestGroupOutput, WrappedTest} from './test-group-output';
 
 /**
  * Run tests. Tests are run through the callback provided to the "tests" property on the input object.

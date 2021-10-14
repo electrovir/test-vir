@@ -7,7 +7,7 @@ import {AcceptedTestInputs} from '../testing/individual-test/individual-test-inp
 import {IndividualTestResult} from '../testing/individual-test/individual-test-output';
 import {isTestObject} from '../testing/individual-test/individual-test-type-guards';
 import {ResultState, resultStateExplanations} from '../testing/result-state';
-import {ResolvedTestGroupResults} from '../testing/test-group/test-group-types';
+import {ResolvedTestGroupResults} from '../testing/test-group/test-group-output';
 
 export function countFailures(testGroupResults: Readonly<ResolvedTestGroupResults>[]): number {
     return testGroupResults.reduce((count, singleTestGroupResult) => {
