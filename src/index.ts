@@ -1,5 +1,5 @@
 export * from './api/api';
-export * from './api/format-results';
+export * from './api/resolve-test-groups';
 export * from './errors/empty-test-group.error';
 export * from './errors/file-not-found.error';
 export * from './errors/file-not-used.error';
@@ -8,6 +8,9 @@ export * from './errors/internal-test-vir.error';
 export * from './errors/test-vir.error';
 export * from './errors/test.error';
 export * from './errors/unresolvable-promise.error';
+export * from './formatting/count-failures';
+export * from './formatting/format-all-results';
+export * from './formatting/format-single-test-group-result';
 export * from './get-caller-file';
 export * from './testing/individual-test/individual-test-input';
 export * from './testing/individual-test/individual-test-output';

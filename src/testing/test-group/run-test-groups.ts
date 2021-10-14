@@ -1,4 +1,3 @@
-import {formatIndividualTestResults} from '../../api/format-results';
 import {throwInternalTestVirError} from '../../errors/internal-test-vir.error';
 import {IndividualTestResult} from '../individual-test/individual-test-output';
 import {runIndividualTest} from '../individual-test/run-individual-test';
@@ -10,27 +9,6 @@ import {
     ResolvedTestGroupResults,
     TestGroupOutput,
 } from './test-group-output';
-
-export async function resolveTestGroup(input: TestGroupOutput[] | TestGroupOutput): Promise<void> {
-    const groups: TestGroupOutput[] = Array.isArray(input) ? input : [input];
-
-    const results: ResolvedTestGroupResults[] = await runTestGroups(groups);
-
-    const failures = results.reduce(
-        (accumulatedErrors: IndividualTestResult<unknown, unknown>[], result) => {
-            const failures = result.allResults.filter((innerResult) => !innerResult.success);
-
-            return accumulatedErrors.concat(failures);
-        },
-        [],
-    );
-
-    const failureMessages = failures.map((failure) => formatIndividualTestResults(failure));
-
-    if (failureMessages.length) {
-        throw new Error(failureMessages.join('\n'));
-    }
-}
 
 export async function runTestGroups(
     testGroups: TestGroupOutput[],

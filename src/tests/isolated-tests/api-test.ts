@@ -5,8 +5,8 @@
 
 import {relative} from 'path';
 import {countFailures, runResolvedTestFiles} from '../..';
-import {formatLineLeader} from '../../api/format-results';
-import {colors} from '../../string-output';
+import {colors} from '../../formatting/colors';
+import {formatLineLeader} from '../../formatting/did-test-pass-string';
 import {ResultState} from '../../testing/result-state';
 
 async function main() {

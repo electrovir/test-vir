@@ -8,14 +8,3 @@ export const colors = {
     reset: styles.reset.close,
     bold: styles.bold.open,
 } as const;
-
-const tab = '    ';
-
-export const separator = `:`;
-
-export function createIndentString(indent: number): string {
-    return Array(indent)
-        .fill(0)
-        .map(() => `${tab}`)
-        .join('');
-}

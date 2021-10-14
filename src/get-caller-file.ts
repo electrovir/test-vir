@@ -1,5 +1,5 @@
 import {relative} from 'path';
-import {separator} from './string-output';
+import {separator} from './strings/string-format';
 
 export type Caller = {
     filePath: string;

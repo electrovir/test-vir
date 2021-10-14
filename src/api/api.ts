@@ -6,13 +6,14 @@ import {FileNotUsedError} from '../errors/file-not-used.error';
 import {ImportError} from '../errors/import.error';
 import {throwInternalTestVirError} from '../errors/internal-test-vir.error';
 import {TestError} from '../errors/test.error';
+import {colors} from '../formatting/colors';
+import {getFinalMessage, getPassedColor} from '../formatting/did-test-pass-string';
+import {formatSingleTestGroupResult} from '../formatting/format-single-test-group-result';
 import {Caller, emptyCaller} from '../get-caller-file';
-import {colors} from '../string-output';
 import {ResultState} from '../testing/result-state';
 import {clearGlobalTests, getAndClearGlobalTests} from '../testing/test-group/global-test-groups';
 import {runTestGroups} from '../testing/test-group/run-test-groups';
 import {ResolvedTestGroupResults, TestGroupOutput} from '../testing/test-group/test-group-output';
-import {formatSingleResult, getFinalMessage, getPassedColor} from './format-results';
 
 let alreadyRunning = false;
 
@@ -235,7 +236,7 @@ async function main(): Promise<void> {
 
     // await each promise individually so results can print as the tests finish
     results.forEach(async (result) => {
-        console.info(formatSingleResult(result, debugMode));
+        console.info(formatSingleTestGroupResult(result, debugMode));
     });
 
     const failureMessage = getFinalMessage(results);

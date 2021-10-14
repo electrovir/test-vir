@@ -5,8 +5,9 @@
 
 import {relative} from 'path';
 import {runResolvedTestFiles} from '../..';
-import {formatAllResults, formatLineLeader} from '../../api/format-results';
-import {colors} from '../../string-output';
+import {colors} from '../../formatting/colors';
+import {formatLineLeader} from '../../formatting/did-test-pass-string';
+import {formatAllResults} from '../../formatting/format-all-results';
 
 function printWrongFormat(input: string): void {
     console.error('vvv begin incorrect formatting vvv');
