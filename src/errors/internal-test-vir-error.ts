@@ -1,3 +1,5 @@
+import {TestVirError} from './test-vir.error';
+
 /**
  * Test-vir plugin encountered an unexpected internal error. If this occurs something is seriously wrong.
  *
@@ -8,8 +10,8 @@
  *
  * This error should not be thrown directly, throwInternalTestVirError should be used instead.
  */
-export class InternalTestVirError extends Error {
-    public name = 'InternalTestVirError';
+export class InternalTestVirError extends TestVirError {
+    public override readonly name = 'InternalTestVirError';
 }
 
 export function throwInternalTestVirError(input: any): never {
