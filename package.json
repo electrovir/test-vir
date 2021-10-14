@@ -20,7 +20,10 @@
         "url": "git+https://github.com/electrovir/test-vir.git"
     },
     "license": "MIT",
-    "author": "electrovir (github.com/electrovir)",
+    "author": {
+        "name": "electrovir",
+        "url": "https://github.com/electrovir"
+    },
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "bin": {
@@ -30,7 +33,7 @@
         "format": "virmator format",
         "prepublishOnly": "npm install && npm run test:full && chmod +x dist/api/api.js",
         "spellcheck": "virmator spellcheck",
-        "test": "virmator compile && bash run-tests.sh",
+        "test": "virmator compile && bash scripts/run-tests.sh",
         "test:full": "npm test && virmator spellcheck && virmator format check && md-code --check README.md"
     },
     "dependencies": {

@@ -18,8 +18,5 @@ test-repos/
 tsconfig-base.json
 tsconfig.json
 
-dist/tests
-dist/readme-examples
-.prettierrc.json
-prettierignore
-run-tests.sh
+dist/tests/
+dist/readme-examples/
