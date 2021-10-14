@@ -1,4 +1,3 @@
-// testing-files-with-glob.ts
 import {runResolvedTestFiles} from '..';
 
 async function main() {

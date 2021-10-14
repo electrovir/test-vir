@@ -1,4 +1,3 @@
-// first-test-group-example.ts
 import {testGroup} from '..';
 
 testGroup({
@@ -11,5 +10,7 @@ testGroup({
                 return 3;
             },
         });
+
+        // run more tests here
     },
 });
