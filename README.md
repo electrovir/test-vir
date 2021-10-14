@@ -73,12 +73,12 @@ Use `runResolvedTestFiles` to run specific files.
 <!-- example-link: src/readme-examples/testing-files.ts -->
 
 ```TypeScript
-import {runResolvedTestFiles} from 'test-vir';
+import {runTestFiles} from 'test-vir';
 
 async function main() {
     const myFiles = ['path-to-my-test-file.js', 'path-to-another-file.js'];
 
-    const results = await runResolvedTestFiles(myFiles);
+    const results = await runTestFiles(myFiles);
 }
 
 main();
@@ -91,12 +91,12 @@ Globs are supported in inputs to `runResolvedTestFiles`:
 <!-- example-link: src/readme-examples/testing-files-with-glob.ts -->
 
 ```TypeScript
-import {runResolvedTestFiles} from 'test-vir';
+import {runTestFiles} from 'test-vir';
 
 async function main() {
     const myFiles = ['path-to-my-test-file.js', './**/*.test.js'];
 
-    const results = await runResolvedTestFiles(myFiles);
+    const results = await runTestFiles(myFiles);
 }
 
 main();
@@ -109,12 +109,12 @@ The exported function `runResolvedTestFiles` resolves all promises so that all t
 <!-- example-link: src/readme-examples/responding-one-by-one.ts -->
 
 ```TypeScript
-import {runAllTestFiles} from 'test-vir';
+import {runTestFiles} from 'test-vir';
 
 async function main() {
     const myFiles = ['path-to-my-test-file.js', './**/*.test.js'];
 
-    const promisedResults = await runAllTestFiles(myFiles);
+    const promisedResults = await runTestFiles(myFiles);
     promisedResults.forEach(async (promisedResult) => {
         // print test success as each test finishes
         await Promise.all(
