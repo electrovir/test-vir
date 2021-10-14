@@ -276,7 +276,6 @@ Note the following rules. These rules are enforced by the type system (if you're
                  */
                 // @ts-expect-error
                 expect: 4,
-                // @ts-expect-error
                 test: () => 'hello there',
             });
             runTest({
@@ -293,7 +292,7 @@ Note the following rules. These rules are enforced by the type system (if you're
     <!-- example-link: src/readme-examples/expect-with-void-return.ts -->
 
     ```TypeScript
-    import {testGroup} from '../..';
+    import {testGroup} from 'test-vir';
 
     testGroup({
         description: 'void return example',
