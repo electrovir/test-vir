@@ -3,10 +3,13 @@ import {FileNotFoundError} from '../errors/file-not-found-error';
 import {FileNotUsedError} from '../errors/file-not-used-error';
 import {callerToString} from '../get-caller-file';
 import {colors, createIndentString, separator} from '../string-output';
-import {ResultState, resultStateExplanations} from '../test-runners/result-state';
-import {isTestObject} from '../test-runners/run-individual-test';
-import {AcceptedTestInputs, IndividualTestResult} from '../test-runners/run-individual-test-types';
-import {ResolvedTestGroupResults} from '../test-runners/test-group-types';
+import {isTestObject} from '../testing/individual-test/run-individual-test';
+import {
+    AcceptedTestInputs,
+    IndividualTestResult,
+} from '../testing/individual-test/run-individual-test-types';
+import {ResultState, resultStateExplanations} from '../testing/result-state';
+import {ResolvedTestGroupResults} from '../testing/test-group/test-group-types';
 
 export function countFailures(testGroupResults: Readonly<ResolvedTestGroupResults>[]): number {
     return testGroupResults.reduce((count, singleTestGroupResult) => {

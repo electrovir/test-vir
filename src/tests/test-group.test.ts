@@ -1,5 +1,4 @@
-import {testGroup} from '../test-runners/test-group';
-import {SyncTestGroupInput, TestGroupOutput} from '../test-runners/test-group-types';
+import {SyncTestGroupInput, testGroup, TestGroupOutput} from '../';
 
 testGroup((runTest) => {
     runTest({

@@ -1,5 +1,5 @@
-import {Caller} from '../get-caller-file';
-import {ResultState} from './result-state';
+import {Caller} from '../../get-caller-file';
+import {ResultState} from '../result-state';
 
 export type TestFunction<ResultTypeGeneric> = () => ResultTypeGeneric | Promise<ResultTypeGeneric>;
 

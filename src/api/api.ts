@@ -8,10 +8,10 @@ import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
 import {TestError} from '../errors/test-error';
 import {Caller, emptyCaller} from '../get-caller-file';
 import {colors} from '../string-output';
-import {clearGlobalTests, getAndClearGlobalTests} from '../test-runners/global';
-import {ResultState} from '../test-runners/result-state';
-import {runTestGroups} from '../test-runners/test-group-runner';
-import {ResolvedTestGroupResults, TestGroupOutput} from '../test-runners/test-group-types';
+import {ResultState} from '../testing/result-state';
+import {clearGlobalTests, getAndClearGlobalTests} from '../testing/test-group/global-test-groups';
+import {runTestGroups} from '../testing/test-group/test-group-runner';
+import {ResolvedTestGroupResults, TestGroupOutput} from '../testing/test-group/test-group-types';
 import {formatSingleResult, getFinalMessage, getPassedColor} from './format-results';
 
 let alreadyRunning = false;

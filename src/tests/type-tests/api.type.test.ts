@@ -1,5 +1,5 @@
+import {ResolvedTestGroupResults} from '../../';
 import {runAllTestFiles, runResolvedTestFiles} from '../../api/api';
-import {ResolvedTestGroupResults} from '../../test-runners/test-group-types';
 
 // this is for type errors, this function will never actually run
 async function main() {

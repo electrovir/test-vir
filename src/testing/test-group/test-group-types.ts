@@ -1,10 +1,10 @@
 import {Overwrite} from 'augment-vir';
-import {Caller} from '../get-caller-file';
+import {Caller} from '../../get-caller-file';
 import {
     AcceptedTestInputs,
     IndividualTestResult,
     TestCommonProperties,
-} from './run-individual-test-types';
+} from '../individual-test/run-individual-test-types';
 
 export type SyncTestGroupInputFunction = (testFunction: runTest) => undefined | void;
 export type AsyncTestGroupInputFunction = (testFunction: runTest) => Promise<void> | void;

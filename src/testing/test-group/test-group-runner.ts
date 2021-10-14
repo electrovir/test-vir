@@ -1,11 +1,11 @@
-import {formatIndividualTestResults} from '../api/format-results';
-import {EmptyTestGroupError} from '../errors/empty-test-group-error';
-import {FileNotFoundError} from '../errors/file-not-found-error';
-import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
-import {Caller, emptyCaller} from '../get-caller-file';
-import {ResultState} from './result-state';
-import {isTestObject, runIndividualTest} from './run-individual-test';
-import {IndividualTestResult} from './run-individual-test-types';
+import {formatIndividualTestResults} from '../../api/format-results';
+import {EmptyTestGroupError} from '../../errors/empty-test-group-error';
+import {FileNotFoundError} from '../../errors/file-not-found-error';
+import {throwInternalTestVirError} from '../../errors/internal-test-vir-error';
+import {Caller, emptyCaller} from '../../get-caller-file';
+import {isTestObject, runIndividualTest} from '../individual-test/run-individual-test';
+import {IndividualTestResult} from '../individual-test/run-individual-test-types';
+import {ResultState} from '../result-state';
 import {
     FilteredTestGroupOutput,
     FilteredWrappedTest,

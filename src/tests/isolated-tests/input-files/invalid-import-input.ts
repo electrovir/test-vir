@@ -1,6 +1,6 @@
 // @ts-expect-error
 import {invalidImport} from 'invalid-module';
-import {testGroup} from '../../../test-runners/test-group';
+import {testGroup} from '../../../';
 
 testGroup((runTest) => {
     runTest(() => {

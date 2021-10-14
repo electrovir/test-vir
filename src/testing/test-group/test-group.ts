@@ -1,7 +1,7 @@
-import {throwInternalTestVirError} from '../errors/internal-test-vir-error';
-import {getCaller} from '../get-caller-file';
-import {addGlobalTest} from './global';
-import {AcceptedTestInputs} from './run-individual-test-types';
+import {throwInternalTestVirError} from '../../errors/internal-test-vir-error';
+import {getCaller} from '../../get-caller-file';
+import {AcceptedTestInputs} from '../individual-test/run-individual-test-types';
+import {addGlobalTest} from './global-test-groups';
 import {
     AsyncTestGroupInput,
     SyncTestGroupInput,

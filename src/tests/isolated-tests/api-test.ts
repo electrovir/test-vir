@@ -7,7 +7,7 @@ import {relative} from 'path';
 import {countFailures, runResolvedTestFiles} from '../..';
 import {formatLineLeader} from '../../api/format-results';
 import {colors} from '../../string-output';
-import {ResultState} from '../../test-runners/result-state';
+import {ResultState} from '../../testing/result-state';
 
 async function main() {
     const testResults = await runResolvedTestFiles(['./**/!(*.type).test.js']);
