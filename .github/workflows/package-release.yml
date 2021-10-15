@@ -1,0 +1,35 @@
+name: 'package-release'
+
+on:
+    push:
+        branches:
+            - '**'
+
+jobs:
+    package-release:
+        name: 'package release'
+        runs-on: 'ubuntu-latest'
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Use Node.js 14.x
+              uses: actions/setup-node@v1
+              with:
+                  node-version: 14.x
+            - name: run test
+              run: |
+                  npm ci
+                  npm run test:full
+                  npm pack
+                  npm run rename-pack
+
+            - name: Set output
+              id: vars
+              run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+            - uses: 'marvinpinto/action-automatic-releases@latest'
+              with:
+                  repo_token: '${{ secrets.GITHUB_TOKEN }}'
+                  automatic_release_tag: 'prerelease-${{ steps.vars.outputs.short_ref }}'
+                  prerelease: true
+                  files: |
+                      test-vir-pack.tgz

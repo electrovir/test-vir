@@ -32,6 +32,7 @@
     "scripts": {
         "format": "virmator format",
         "prepublishOnly": "npm install && npm run test:full && chmod +x dist/api/api.js",
+        "rename-pack": "mv test-vir-*.tgz test-vir-pack.tgz",
         "spellcheck": "virmator spellcheck",
         "test": "virmator compile && bash scripts/run-tests.sh",
         "test:full": "npm test && virmator spellcheck && virmator format check && md-code --check README.md",
