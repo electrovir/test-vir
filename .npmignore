@@ -20,3 +20,4 @@ tsconfig.json
 
 dist/tests/
 dist/readme-examples/
+*.tgz

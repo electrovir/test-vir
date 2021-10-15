@@ -23,13 +23,15 @@ jobs:
                   npm pack
                   npm run rename-pack
 
-            - name: Set output
+            - name: Set short_ref output
               id: vars
-              run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+              run: |
+                  echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+                  echo ::set-output name=tar_name::$(echo test-vir-pack-*.tgz)
             - uses: 'marvinpinto/action-automatic-releases@latest'
               with:
                   repo_token: '${{ secrets.GITHUB_TOKEN }}'
                   automatic_release_tag: 'prerelease-${{ steps.vars.outputs.short_ref }}'
                   prerelease: true
                   files: |
-                      test-vir-pack.tgz
+                      ${{ steps.vars.outputs.tar_name }}
