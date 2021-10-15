@@ -1,6 +1,5 @@
 import {ArrayElement} from 'augment-vir';
-import {ResultState} from '../..';
-import {FailStates, PassStates} from '../../';
+import {FailStates, PassStates, ResultState} from '..';
 
 type ResultStateObject = Record<ResultState, string>;
 type PassStateObject = Record<ArrayElement<typeof PassStates>, string>;

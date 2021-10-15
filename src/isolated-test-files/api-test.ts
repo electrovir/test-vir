@@ -4,10 +4,10 @@
  */
 
 import {relative} from 'path';
-import {countFailures, runTestFiles} from '../..';
-import {colors} from '../../formatting/colors';
-import {formatLineLeader} from '../../formatting/did-test-pass-string';
-import {ResultState} from '../../testing/result-state';
+import {countFailures, runTestFiles} from '..';
+import {colors} from '../formatting/colors';
+import {formatLineLeader} from '../formatting/did-test-pass-string';
+import {ResultState} from '../testing/result-state';
 
 async function main() {
     const testResults = await runTestFiles(['./**/!(*.type).test.js']);
@@ -28,7 +28,7 @@ async function main() {
     }
     if (
         noTestGroupResults[1]?.fileSource !==
-        './dist/tests/isolated-tests/input-files/empty-test-group-input.js'
+        './dist/isolated-test-files/input-files/empty-test-group-input.js'
     ) {
         throw new Error(
             `fileSource property was not properly included. Got ${noTestGroupResults[1]?.fileSource}`,

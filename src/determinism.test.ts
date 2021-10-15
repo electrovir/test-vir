@@ -1,4 +1,4 @@
-import {testGroup} from '..';
+import {testGroup} from '.';
 
 const globalObject = {
     a: 'hello there',

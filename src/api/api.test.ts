@@ -4,7 +4,7 @@ import {
     runTestFiles,
     TestError,
     testGroup,
-} from '../';
+} from '..';
 
 // the most basic of tests
 

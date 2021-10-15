@@ -1,4 +1,4 @@
-import {testGroup} from '../../../';
+import {testGroup} from '../..';
 
 testGroup((runTest) => {
     runTest(() => {

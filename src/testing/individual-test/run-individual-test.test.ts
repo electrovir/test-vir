@@ -1,5 +1,5 @@
-import {ResultState, testGroup} from '..';
-import {runIndividualTest} from '../testing/individual-test/run-individual-test';
+import {ResultState, testGroup} from '../..';
+import {runIndividualTest} from './run-individual-test';
 
 testGroup({
     description: 'test the tester',

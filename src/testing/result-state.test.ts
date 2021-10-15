@@ -1,5 +1,4 @@
-import {isPassState, testGroup} from '..';
-import {FailStates, PassStates} from '../';
+import {FailStates, isPassState, PassStates, testGroup} from '..';
 
 testGroup({
     description: 'result state tests',

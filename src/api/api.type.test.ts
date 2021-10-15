@@ -1,4 +1,4 @@
-import {ResolvedTestGroupResults, runTestFiles} from '../..';
+import {ResolvedTestGroupResults, runTestFiles} from '..';
 
 // this is for type errors, this function will never actually run
 async function main() {

@@ -6,7 +6,7 @@ import {
     TestError,
     testGroup,
     TestInputObject,
-} from '../..';
+} from '.';
 
 /**
  * This file utilizes the "// @ts-expect-error" comment to write type assignment failure cases which

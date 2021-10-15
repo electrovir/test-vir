@@ -1,4 +1,4 @@
-import {testGroup} from '../../../';
+import {testGroup} from '../..';
 
 let othersRan = false;
 
@@ -28,7 +28,6 @@ testGroup((runTest) => {
     runTest({
         description: 'force this one',
         expect: false,
-        forceOnly: true,
         test: () => {
             return othersRan;
         },

@@ -1,4 +1,4 @@
-import {SyncTestGroupInput, testGroup, TestGroupOutput} from '../';
+import {SyncTestGroupInput, testGroup, TestGroupOutput} from '../..';
 
 testGroup((runTest) => {
     runTest({

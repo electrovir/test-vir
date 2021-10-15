@@ -1,4 +1,4 @@
-import {testGroup} from '../../..';
+import {testGroup} from '../..';
 
 export function runIndirectTest() {
     testGroup((runTest) => {

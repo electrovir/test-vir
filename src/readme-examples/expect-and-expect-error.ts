@@ -10,7 +10,6 @@ testGroup({
             expectError: {
                 errorClass: Error,
             },
-            // @ts-expect-error
             test: () => 3,
         });
     },

@@ -4,10 +4,10 @@
  */
 
 import {relative} from 'path';
-import {runTestFiles} from '../..';
-import {colors} from '../../formatting/colors';
-import {formatLineLeader} from '../../formatting/did-test-pass-string';
-import {formatAllResults} from '../../formatting/format-all-results';
+import {runTestFiles} from '..';
+import {colors} from '../formatting/colors';
+import {formatLineLeader} from '../formatting/did-test-pass-string';
+import {formatAllResults} from '../formatting/format-all-results';
 
 function printWrongFormat(input: string): void {
     console.error('vvv begin incorrect formatting vvv');
