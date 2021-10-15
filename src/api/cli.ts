@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import {TestError} from '../errors/test.error';
 import {colors} from '../formatting/colors';
 import {getFinalMessage, getPassedColor} from '../formatting/did-test-pass-string';

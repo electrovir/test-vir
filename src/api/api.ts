@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import {existsSync} from 'fs';
 import {throwInternalTestVirError} from '../errors/internal-test-vir.error';
 import {TestError} from '../errors/test.error';
