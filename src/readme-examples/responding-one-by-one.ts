@@ -8,7 +8,7 @@ async function main() {
         // print test success as each test finishes
         await Promise.all(
             promisedResult.allResults.map(async (individualResult) => {
-                console.log(individualResult.success);
+                console.info(individualResult.success);
             }),
         );
     });

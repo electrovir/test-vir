@@ -6,15 +6,17 @@ import {ResolvedTestGroupResults, TestGroupOutput} from '../testing/test-group/t
 export async function resolveTestGroups(input: TestGroupOutput[] | TestGroupOutput): Promise<void> {
     const groups: TestGroupOutput[] = Array.isArray(input) ? input : [input];
 
-    const results: ResolvedTestGroupResults[] = await runTestGroups(groups);
+    const results: Promise<ResolvedTestGroupResults>[] = runTestGroups(groups);
 
-    const failures = results.reduce(
-        (accumulatedErrors: IndividualTestResult<unknown, unknown>[], result) => {
-            const failures = result.allResults.filter((innerResult) => !innerResult.success);
+    const failures = await results.reduce(
+        async (accumulatedErrors: Promise<IndividualTestResult<unknown, unknown>[]>, result) => {
+            const failures = (await result).allResults.filter(
+                (innerResult) => !innerResult.success,
+            );
 
-            return accumulatedErrors.concat(failures);
+            return (await accumulatedErrors).concat(failures);
         },
-        [],
+        Promise.resolve([]),
     );
 
     const failureMessages = failures.map((failure) => formatIndividualTestResult(failure));

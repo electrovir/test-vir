@@ -57,7 +57,7 @@ function getMessage(success: boolean): string {
 if (require.main === module) {
     main()
         .then(() => {
-            console.log(getMessage(true));
+            console.info(getMessage(true));
             process.exit(0);
         })
         .catch((error) => {

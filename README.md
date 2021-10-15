@@ -119,7 +119,7 @@ async function main() {
         // print test success as each test finishes
         await Promise.all(
             promisedResult.allResults.map(async (individualResult) => {
-                console.log(individualResult.success);
+                console.info(individualResult.success);
             }),
         );
     });
@@ -252,7 +252,6 @@ Note the following rules. These rules are enforced by the type system (if you're
                 expectError: {
                     errorClass: Error,
                 },
-                // @ts-expect-error
                 test: () => 3,
             });
         },

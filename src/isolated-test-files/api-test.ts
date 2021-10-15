@@ -118,7 +118,7 @@ async function main() {
         );
     }, []);
     if (indirectFailures.length) {
-        console.log(indirectTestResults[0]!.allResults);
+        console.info(indirectTestResults[0]!.allResults);
         throw new Error(`Indirect test failed`);
     }
 }
@@ -130,7 +130,7 @@ function getMessage(success: boolean): string {
 if (require.main === module) {
     main()
         .then(() => {
-            console.log(getMessage(true));
+            console.info(getMessage(true));
             process.exit(0);
         })
         .catch((error) => {

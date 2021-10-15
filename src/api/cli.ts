@@ -20,8 +20,8 @@ function setFlags(flags: string[]) {
     }
 }
 
-async function main(): Promise<void> {
-    const {inputs, flags} = process.argv.slice(2).reduce(
+function extractFlagsAndInputs(args: string[]): {inputs: string[]; flags: string[]} {
+    return args.reduce(
         (accum, currentString) => {
             if (currentString.startsWith('--')) {
                 accum.flags.push(currentString);
@@ -32,6 +32,10 @@ async function main(): Promise<void> {
         },
         {inputs: [] as string[], flags: [] as string[]},
     );
+}
+
+async function main(): Promise<void> {
+    const {inputs, flags} = extractFlagsAndInputs(process.argv.slice(2));
 
     if (flags.length) {
         setFlags(flags);
@@ -39,14 +43,11 @@ async function main(): Promise<void> {
 
     if (!inputs.length) {
         throw new TestError(
-            `No files to test. Usage: test-vir <file-path-1>.js [, ...otherFilePaths].\n` +
+            `No files given to test. Usage: test-vir <file-path-1>.js [, ...otherFilePaths].\n` +
                 `Globs are also supported.`,
         );
     }
-    const results: ResolvedTestGroupResults[] = await runTestFiles(inputs);
-
-    // await each promise individually so results can print as the tests finish
-    results.forEach(async (result) => {
+    const results: ResolvedTestGroupResults[] = await runTestFiles(inputs, (result) => {
         console.info(formatSingleTestGroupResult(result, debugMode));
     });
 
