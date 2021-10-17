@@ -28,7 +28,7 @@ jobs:
               run: |
                   tarFileName="$(echo test-vir-pack-*.tgz)"
                   timeStamp="$(ending="${tarFileName#*-pack-}"; echo "${ending%".tgz"}")"
-                  echo ::set-output name=short_ref::"${GITHUB_REF#refs/*/}$timeStamp"
+                  echo ::set-output name=short_ref::"${GITHUB_REF#refs/*/}"
                   echo ::set-output name=tar_name::"$tarFileName"
             - uses: 'marvinpinto/action-automatic-releases@latest'
               with:
