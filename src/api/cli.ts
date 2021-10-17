@@ -35,8 +35,8 @@ function extractFlagsAndInputs(args: string[]): {inputs: string[]; flags: string
     );
 }
 
-async function main(): Promise<void> {
-    const {inputs, flags} = extractFlagsAndInputs(process.argv.slice(2));
+export async function main(args: string[]): Promise<void> {
+    const {inputs, flags} = extractFlagsAndInputs(args);
 
     if (flags.length) {
         setFlags(flags);
@@ -61,7 +61,7 @@ async function main(): Promise<void> {
 
 // this code is executed when run from the CLI
 if (require.main === module) {
-    main()
+    main(process.argv.slice(2))
         .then(() => {
             console.info(`${getPassedColor(true)}All tests passed.${colors.reset}`);
             process.exit(0);
