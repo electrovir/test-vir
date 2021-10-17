@@ -1,7 +1,6 @@
 name: 'package-release'
 
 on:
-    # the 1st condition
     workflow_run:
         workflows: ['tests']
         branches: '**'
@@ -12,21 +11,19 @@ jobs:
     package-release:
         name: 'package release'
         runs-on: 'ubuntu-latest'
-
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
         steps:
             - uses: actions/checkout@v1
             - name: Use Node.js 14.x
               uses: actions/setup-node@v1
               with:
                   node-version: 14.x
-            - name: run test
+            - name: pack package
               run: |
-                  npm ci
-                  npm run test:full
                   npm pack
                   npm run rename-pack
 
-            - name: Set short_ref output
+            - name: Set vars
               id: vars
               run: |
                   tarFileName="$(echo test-vir-pack-*.tgz)"
