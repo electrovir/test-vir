@@ -1,9 +1,12 @@
 name: 'package-release'
 
 on:
-    push:
-        branches:
-            - '**'
+    # the 1st condition
+    workflow_run:
+        workflows: ['tests']
+        branches: '**'
+        types:
+            - completed
 
 jobs:
     package-release:
