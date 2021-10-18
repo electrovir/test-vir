@@ -1,4 +1,4 @@
-name: 'package-release'
+name: branch-prerelease
 
 on:
     workflow_run:
@@ -18,18 +18,22 @@ jobs:
               uses: actions/setup-node@v1
               with:
                   node-version: 14.x
-            - name: pack package
+            - name: run test
               run: |
-                  npm pack
-                  npm run rename-pack
-
-            - name: Set vars
+                  npm ci
+                  npm run test:full
+            - name: pack and set vars
               id: vars
               run: |
-                  tarFileName="$(echo test-vir-pack-*.tgz)"
-                  timeStamp="$(ending="${tarFileName#*-pack-}"; echo "${ending%".tgz"}")"
-                  echo ::set-output name=short_ref::"${GITHUB_REF#refs/*/}"
-                  echo ::set-output name=tar_name::"$tarFileName"
+                  branchName="${GITHUB_REF#refs/*/}"
+                  echo ::set-output name=short_ref::"$branchName"
+
+                  originalTarName="$(npm pack)"
+                  packageName="$(npm -s run env echo '$npm_package_name')"
+                  timeStamp="$(date +%s)"
+                  newTarName="$packageName-$timeStamp.tgz"
+                  mv "$originalTarName" "$newTarName"
+                  echo ::set-output name=tar_name::"$newTarName"
             - uses: 'marvinpinto/action-automatic-releases@latest'
               with:
                   repo_token: '${{ secrets.GITHUB_TOKEN }}'
